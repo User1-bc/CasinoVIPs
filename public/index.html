@@ -664,12 +664,12 @@
         const spanContador = document.getElementById("contador-jugadores");
         spanContador.textContent = jugadoresActuales.toLocaleString();
 
-        setInterval(function() {         
+        setInterval(function() {        
             let variacion = Math.floor(Math.random() * 28) - 12;                
             jugadoresActuales += variacion;                         
-            if (jugadoresActuales < 3200) {              
+            if (jugadoresActuales < 3200) {             
                 jugadoresActuales = 3215;
-            }                                               
+            }                                       
             spanContador.textContent = jugadoresActuales.toLocaleString();
         }, 120000);
 
@@ -710,7 +710,59 @@
                     </div>
                 `;
             } else if (nombreJuego.includes('Dados')) {
-                visual.innerHTML = '🎲 🎲';
+                visual.innerHTML = `
+                    <div style="background: #0d0e12; border: 2px solid #f39c12; border-radius: 12px; padding: 25px; max-width: 450px; margin: 0 auto; color: #fff; font-family: sans-serif; box-shadow: 0 8px 25px rgba(0,0,0,0.6);">
+                        
+                        <!-- Pestañas Manual / Automático -->
+                        <div style="display: flex; background: #1a1c23; border-radius: 8px; padding: 4px; margin-bottom: 20px;">
+                            <button style="flex: 1; background: #f39c12; color: #000; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer;">Manual</button>
+                            <button style="flex: 1; background: transparent; color: #888; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer;">Automático</button>
+                        </div>
+
+                        <!-- Importe de Apuesta -->
+                        <div style="margin-bottom: 15px; text-align: left;">
+                            <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 5px;">Importe (TRX)</label>
+                            <div style="display: flex; align-items: center; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 8px 12px;">
+                                <span style="color: #ff0055; font-weight: bold; margin-right: 8px;">TRX</span>
+                                <input type="number" id="montoApuesta" value="1.00" min="1.00" step="any" style="background: transparent; border: none; color: #fff; font-size: 16px; width: 100%; outline: none;">
+                                <div style="display: flex; gap: 5px;">
+                                    <button onclick="document.getElementById('montoApuesta').value = Math.max(1, (parseFloat(document.getElementById('montoApuesta').value) / 2)).toFixed(2)" style="background: #252833; border: none; color: #aaa; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">½</button>
+                                    <button onclick="document.getElementById('montoApuesta').value = (parseFloat(document.getElementById('montoApuesta').value) * 2).toFixed(2)" style="background: #252833; border: none; color: #aaa; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">2×</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Multiplicador y Probabilidad -->
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <div style="flex: 1; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 10px; text-align: left;">
+                                <span style="font-size: 11px; color: #888; display: block;">Multiplicador</span>
+                                <span id="multiplicadorDice" style="font-size: 18px; color: #f39c12; font-weight: bold;">1.96x</span>
+                            </div>
+                            <div style="flex: 1; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 10px; text-align: left;">
+                                <span style="font-size: 11px; color: #888; display: block;">Probabilidad de ganar</span>
+                                <span id="probabilidadDice" style="font-size: 18px; color: #fff; font-weight: bold;">50.00%</span>
+                            </div>
+                        </div>
+
+                        <!-- Pantalla del Juego / Slider -->
+                        <div style="background: #14161c; border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 20px; border: 1px solid #252833;">
+                            <div style="display: flex; justify-content: space-between; font-size: 24px; font-weight: bold; margin-bottom: 15px;">
+                                <span id="resultadoNumeroDice" style="color: #f39c12;">50</span>
+                                <span style="color: #666; font-size: 16px; align-self: center;">Lanzar por debajo de</span>
+                            </div>
+                            <!-- Barra deslizante interactiva -->
+                            <input type="range" id="sliderDice" min="1" max="99" value="50" style="width: 100%; accent-color: #f39c12; cursor: pointer;" oninput="actualizarValoresDice(this.value)">
+                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-top: 8px;">
+                                <span>0</span>
+                                <span>25</span>
+                                <span>50</span>
+                                <span>75</span>
+                                <span>99</span>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
             } else if (nombreJuego.includes('Ruleta')) {
                 visual.innerHTML = '🎯 🔴 ⚫';
             } else {
@@ -822,10 +874,11 @@
                     else if (rand < 0.25) { multiplicador = 2.5; ganado = true; } 
                     visual.innerHTML = ganado ? '🎰 7️⃣ 7️⃣' : '❌ 🍋 🍒';
                 } else if (juegoActualActivo.includes('Dados')) {
-                    const valorDado = Math.floor(Math.random() * 6) + 1; 
-                    ganado = valorDado >= 4; 
-                    multiplicador = ganado ? 1.7 : 0;
-                    visual.innerHTML = `🎲 (${valorDado})`;
+                    const sliderVal = parseInt(document.getElementById('sliderDice').value);
+                    const tiradaRandom = Math.floor(Math.random() * 100) + 1;
+                    ganado = tiradaRandom < sliderVal;
+                    multiplicador = ganado ? parseFloat(document.getElementById('multiplicadorDice').textContent) : 0;
+                    visual.innerHTML = `🎲 (${tiradaRandom})`;
                 } else {
                     ganado = Math.random() >= 0.5;
                     multiplicador = ganado ? 2.0 : 0;
@@ -993,6 +1046,14 @@
                 });
                 qrGenerado = true;
             }
+        }
+
+        function actualizarValoresDice(val) {
+            document.getElementById('resultadoNumeroDice').textContent = val;
+            let probabilidad = val;
+            let multiplicador = (99 / probabilidad).toFixed(2);
+            document.getElementById('probabilidadDice').textContent = probabilidad + "%";
+            document.getElementById('multiplicadorDice').textContent = multiplicador + "x";
         }
     </script>
 </body>
