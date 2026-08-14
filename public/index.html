@@ -650,6 +650,7 @@
         </div>
     </div>
 
+    <!-- LÓGICA DE CONTROL Y CONEXIÓN REAL -->
     <script>
         let jugadoresActuales = Math.floor(Math.random() * 101) + 3220;            
         const spanContador = document.getElementById("contador-jugadores");
@@ -657,37 +658,35 @@
 
         setInterval(function() {        
             let variacion = Math.floor(Math.random() * 28) - 12;                
-            jugadoresActuales += variacion;                                
-            if (jugadoresActuales < 3200) { jugadoresActuales = 3215; }                                
+            jugadoresActuales += variacion;                         
+            if (jugadoresActuales < 3200) { jugadoresActuales = 3215; }                                       
             if (spanContador) spanContador.textContent = jugadoresActuales.toLocaleString();
         }, 120000);
 
-        // --- LÓGICA DE PERSISTENCIA CORREGIDA ---
+        let saldoActualGlobal = 0.00; 
+        let bonoActualGlobal = 5.00; // Asignación inicial de 5 USDT de bono por registro
         let juegoActualActivo = "";
         let usuarioActualNombre = "";
 
+        // Base de datos simulada en memoria del navegador (localStorage) para almacenar usuarios registrados
         function obtenerUsuariosBD() {
             let usuarios = localStorage.getItem('juegos_vips_usuarios');
-            return usuarios ? JSON.parse(usuarios) : {};
+            return usuarios ? JSON.parse(users = usuarios) : {};
         }
 
         function guardarUsuarioBD(username, password) {
-            let usuarios = obtenerUsuariosBD();
-            // Guardamos el balance inicial de 5.00 aquí
-            usuarios[username] = { password: password, balance: 5.00 };
+            let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
+            usuarios[username] = password;
             localStorage.setItem('juegos_vips_usuarios', JSON.stringify(usuarios));
         }
 
-        function actualizarSaldoUsuarioBD(username, nuevoSaldo) {
-            let usuarios = obtenerUsuariosBD();
-            if (usuarios[username]) {
-                usuarios[username].balance = parseFloat(nuevoSaldo.toFixed(2));
-                localStorage.setItem('juegos_vips_usuarios', JSON.stringify(usuarios));
-            }
+        function verificarCredencialesBD(username, password) {
+            let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
+            return usuarios[username] && usuarios[username] === password;
         }
-        // ----------------------------------------
 
-        let tipoLanzamiento = "debajo"; 
+        // Variables específicas para el juego de dados estilo Qzino
+        let tipoLanzamiento = "debajo"; // "debajo" o "encima"
         let valorSliderDice = 50;
         let multiplicadorDice = 1.98;
         let probabilidadDice = 50;
@@ -711,12 +710,11 @@
                     const userVal = document.getElementById('loginUser').value.trim();
                     const passVal = document.getElementById('loginPass').value.trim();
                     
-                    let usuarios = obtenerUsuariosBD();
-                    if (usuarios[userVal] && usuarios[userVal].password === passVal) {
-                        procesarLoginExitoso(userVal);
-                    } else {
-                        alert("Usuario o contraseña incorrectos.");
+                    if (!verificarCredencialesBD(userVal, passVal)) {
+                        alert("Usuario o contraseña incorrectos. Si no tienes cuenta, por favor regístrate primero.");
+                        return;
                     }
+                    procesarLoginExitoso(userVal);
                 });
             }
 
@@ -727,14 +725,14 @@
                     const userVal = document.getElementById('regUser').value.trim();
                     const passVal = document.getElementById('regPass').value.trim();
                     
-                    let usuarios = obtenerUsuariosBD();
+                    let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
                     if (usuarios[userVal]) {
-                        alert("El nombre de usuario ya existe.");
+                        alert("El nombre de usuario ya existe. Por favor, elige otro o inicia sesión.");
                         return;
                     }
 
                     guardarUsuarioBD(userVal, passVal);
-                    alert("¡Registro exitoso! Se te han acreditado 5.00 USDT de bono.");
+                    alert("¡Registro exitoso! Se te han acreditado 5.00 USDT de bono de bienvenida. Inicia sesión para jugar.");
                     cerrarModales();
                     abrirModalLogin();
                 });
@@ -742,7 +740,9 @@
         });
 
         function procesarLoginExitoso(nombreUsuario) {
-            usuarioActualNombre = nombreUsuario;
+            usuarioActualNombre = nombreUsuario || "Jugador";
+            saldoActualGlobal = 0.00;
+            bonoActualGlobal = 5.00; // Garantiza los 5 USDT de bono al iniciar sesión correctamente
             cerrarModales();
 
             const publicSite = document.getElementById('publicSite');
@@ -758,23 +758,25 @@
         }
 
         function actualizarSaldosVisuales() {
-            let usuarios = obtenerUsuariosBD();
-            let saldo = usuarios[usuarioActualNombre] ? usuarios[usuarioActualNombre].balance : 0.00;
-
             const saldoUsuario = document.getElementById('saldoUsuarioSpan');
             const bonoUsuario = document.getElementById('saldoBonoSpan');
             const saldoJuego = document.getElementById('saldoJuegoSpan');
             const bonoJuego = document.getElementById('bonoJuegoSpan');
 
-            if (saldoUsuario) saldoUsuario.textContent = saldo.toFixed(2);
-            if (bonoUsuario) bonoUsuario.textContent = saldo.toFixed(2);
-            if (saldoJuego) saldoJuego.textContent = saldo.toFixed(2);
-            if (bonoJuego) bonoJuego.textContent = saldo.toFixed(2);
+            if (saldoUsuario) saldoUsuario.textContent = saldoActualGlobal.toFixed(2);
+            if (bonoUsuario) bonoUsuario.textContent = bonoActualGlobal.toFixed(2);
+            if (saldoJuego) saldoJuego.textContent = saldoActualGlobal.toFixed(2);
+            if (bonoJuego) bonoJuego.textContent = bonoActualGlobal.toFixed(2);
         }
 
         function cerrarSesion() {
-            usuarioActualNombre = "";
-            window.location.reload(); 
+            const publicSite = document.getElementById('publicSite');
+            const userDashboard = document.getElementById('userDashboard');
+            const gameScreen = document.getElementById('gameScreen');
+
+            if (publicSite) publicSite.style.display = 'block';
+            if (userDashboard) userDashboard.style.display = 'none';
+            if (gameScreen) gameScreen.style.display = 'none';
         }
 
         function regresarAlDashboard() {
