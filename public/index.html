@@ -529,7 +529,7 @@
                 <h3>Bienvenido, <span id="nombreUsuarioSpan">Jugador</span></h3>
             </div>
             <div class="balance-card">
-                💰 Saldo Real: <span id="saldoUsuarioSpan">0.00</span> USDT | 🎁 Bono: <span id="saldoBonoSpan">0.00</span> USDT
+                💰 Saldo Real: <span id="saldoUsuarioSpan">0.00</span> USDT | 🎁 Bono: <span id="saldoBonoSpan">5.00</span> USDT
             </div>
             <div class="dashboard-actions">
                 <button onclick="cerrarSesion()" class="cta-button secondary" style="padding: 8px 20px; font-size: 0.9rem;">Cerrar Sesión</button>
@@ -598,7 +598,7 @@
                 <h3>Jugando: <span id="tituloJuegoPantalla" style="color:#ffd700;">Juego</span></h3>
             </div>
             <div class="balance-card">
-                💰 Saldo Real: <span id="saldoJuegoSpan">0.00</span> USDT | 🎁 Bono: <span id="bonoJuegoSpan">0.00</span> USDT
+                💰 Saldo Real: <span id="saldoJuegoSpan">0.00</span> USDT | 🎁 Bono: <span id="bonoJuegoSpan">5.00</span> USDT
             </div>
             <div class="dashboard-actions">
                 <button onclick="regresarAlDashboard()" class="cta-button secondary" style="padding: 8px 20px; font-size: 0.9rem;">⬅ Regresar al Panel</button>
@@ -663,10 +663,27 @@
             if (spanContador) spanContador.textContent = jugadoresActuales.toLocaleString();
         }, 120000);
 
-        let saldoActualGlobal = 0.00; // Saldo inicial ajustado a 0.00 para nuevos usuarios
-        let bonoActualGlobal = 0.00;
+        let saldoActualGlobal = 0.00; 
+        let bonoActualGlobal = 5.00; // Asignación inicial de 5 USDT de bono por registro
         let juegoActualActivo = "";
         let usuarioActualNombre = "";
+
+        // Base de datos simulada en memoria del navegador (localStorage) para almacenar usuarios registrados
+        function obtenerUsuariosBD() {
+            let usuarios = localStorage.getItem('juegos_vips_usuarios');
+            return usuarios ? JSON.parse(users = usuarios) : {};
+        }
+
+        function guardarUsuarioBD(username, password) {
+            let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
+            usuarios[username] = password;
+            localStorage.setItem('juegos_vips_usuarios', JSON.stringify(usuarios));
+        }
+
+        function verificarCredencialesBD(username, password) {
+            let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
+            return usuarios[username] && usuarios[username] === password;
+        }
 
         // Variables específicas para el juego de dados estilo Qzino
         let tipoLanzamiento = "debajo"; // "debajo" o "encima"
@@ -690,7 +707,13 @@
             if (formLogin) {
                 formLogin.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    const userVal = document.getElementById('loginUser').value;
+                    const userVal = document.getElementById('loginUser').value.trim();
+                    const passVal = document.getElementById('loginPass').value.trim();
+                    
+                    if (!verificarCredencialesBD(userVal, passVal)) {
+                        alert("Usuario o contraseña incorrectos. Si no tienes cuenta, por favor regístrate primero.");
+                        return;
+                    }
                     procesarLoginExitoso(userVal);
                 });
             }
@@ -699,14 +722,27 @@
             if (formRegister) {
                 formRegister.addEventListener('submit', function(e) {
                     e.preventDefault();
-                    const userVal = document.getElementById('regUser').value;
-                    procesarLoginExitoso(userVal);
+                    const userVal = document.getElementById('regUser').value.trim();
+                    const passVal = document.getElementById('regPass').value.trim();
+                    
+                    let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
+                    if (usuarios[userVal]) {
+                        alert("El nombre de usuario ya existe. Por favor, elige otro o inicia sesión.");
+                        return;
+                    }
+
+                    guardarUsuarioBD(userVal, passVal);
+                    alert("¡Registro exitoso! Se te han acreditado 5.00 USDT de bono de bienvenida. Inicia sesión para jugar.");
+                    cerrarModales();
+                    abrirModalLogin();
                 });
             }
         });
 
         function procesarLoginExitoso(nombreUsuario) {
             usuarioActualNombre = nombreUsuario || "Jugador";
+            saldoActualGlobal = 0.00;
+            bonoActualGlobal = 5.00; // Garantiza los 5 USDT de bono al iniciar sesión correctamente
             cerrarModales();
 
             const publicSite = document.getElementById('publicSite');
@@ -802,7 +838,6 @@
             if (!visual) return;
 
             if (nombreJuego.includes('Dados')) {
-                // Interfaz idéntica al diseño de Qzino proporcionado en la imagen
                 visual.innerHTML = `
                     <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: flex-start; text-align: left;">
                         <!-- Panel de controles izquierdo -->
@@ -901,7 +936,6 @@
             if (textoRes) textoRes.textContent = "Listo para apostar.";
         }
 
-        // Funciones auxiliares para el juego de dados estilo Qzino
         function setImporteFijo(valor) {
             const input = document.getElementById('inputImporteDice');
             if (input) {
@@ -972,7 +1006,6 @@
             let prob = tipoLanzamiento === 'debajo' ? valorSliderDice : (99 - valorSliderDice);
             probabilidadDice = Math.max(1, Math.min(98, prob));
             
-            // Fórmula estándar de casino para multiplicador con margen de la casa (99%)
             multiplicadorDice = 0.99 / (probabilidadDice / 100);
 
             const inputMult = document.getElementById('inputMultiplicadorDice');
@@ -1005,8 +1038,9 @@
             const btn = document.getElementById('btnEjecutarJuego');
             const textoRes = document.getElementById('resultadoTextoJuego');
 
-            if (saldoActualGlobal < montoApuesta) {
-                alert("Saldo insuficiente. Realiza un depósito para comenzar a apostar con fondos reales.");
+            let saldoTotalDisponible = saldoActualGlobal + bonoActualGlobal;
+            if (saldoTotalDisponible < montoApuesta) {
+                alert("Saldo insuficiente. Realiza un depósito para continuar apostando.");
                 return;
             }
 
@@ -1017,7 +1051,7 @@
                 let ganado = false;
 
                 if (juegoActualActivo.includes('Dados')) {
-                    const tiradaRandom = Math.floor(Math.random() * 99) + 1; // 1 a 99
+                    const tiradaRandom = Math.floor(Math.random() * 99) + 1;
                     const elTiradaFinal = document.getElementById('resultadoTiradaFinal');
                     if (elTiradaFinal) elTiradaFinal.textContent = tiradaRandom < 10 ? "0" + tiradaRandom : tiradaRandom;
 
@@ -1034,13 +1068,24 @@
                     ganado = Math.random() >= 0.5;
                 }
 
+                // Descontar primero del bono y luego del saldo real si es necesario
+                let restanteAPagar = montoApuesta;
+                if (bonoActualGlobal >= restanteAPagar) {
+                    bonoActualGlobal -= restanteAPagar;
+                    restanteAPagar = 0;
+                } else {
+                    restanteAPagar -= bonoActualGlobal;
+                    bonoActualGlobal = 0;
+                    saldoActualGlobal -= restanteAPagar;
+                }
+
                 if (ganado) {
                     let premio = juegoActualActivo.includes('Dados') ? (montoApuesta * multiplicadorDice) : (montoApuesta * 2);
-                    if (textoRes) textoRes.innerHTML = `🎉 ¡Ganaste <span style="color:#22c55e;">+${(premio - montoApuesta).toFixed(2)} USDT</span>!`;
-                    saldoActualGlobal += (premio - montoApuesta);
+                    let gananciaNeta = premio - montoApuesta;
+                    if (textoRes) textoRes.innerHTML = `🎉 ¡Ganaste <span style="color:#22c55e;">+${gananciaNeta.toFixed(2)} USDT</span>!`;
+                    saldoActualGlobal += gananciaNeta;
                 } else {
                     if (textoRes) textoRes.innerHTML = `❌ Perdiste <span style="color:#ef4444;">-${montoApuesta.toFixed(2)} USDT</span>.`;
-                    saldoActualGlobal -= montoApuesta;
                 }
                 
                 actualizarSaldosVisuales();
