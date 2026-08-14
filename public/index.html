@@ -337,8 +337,8 @@
             min-height: 100vh;
         }
         .game-screen-container {
-            max-width: 900px;
-            margin: 40px auto;
+            max-width: 1000px;
+            margin: 30px auto;
             padding: 20px;
             text-align: center;
         }
@@ -346,9 +346,9 @@
             background: #131b2e;
             border: 2px solid #d4af37;
             border-radius: 15px;
-            padding: 40px;
+            padding: 30px;
             box-shadow: 0 0 25px rgba(212, 175, 55, 0.2);
-            margin-top: 25px;
+            margin-top: 20px;
         }
 
         /* Ventanas Modales */
@@ -664,16 +664,11 @@
         }, 120000);
 
         let saldoActualGlobal = 0.00; 
-        let bonoActualGlobal = 5.00; // Asignación inicial de 5 USDT de bono por registro
+        let bonoActualGlobal = 5.00;
         let juegoActualActivo = "";
         let usuarioActualNombre = "";
 
         // Base de datos simulada en memoria del navegador (localStorage) para almacenar usuarios registrados
-        function obtenerUsuariosBD() {
-            let usuarios = localStorage.getItem('juegos_vips_usuarios');
-            return usuarios ? JSON.parse(users = usuarios) : {};
-        }
-
         function guardarUsuarioBD(username, password) {
             let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
             usuarios[username] = password;
@@ -685,11 +680,17 @@
             return usuarios[username] && usuarios[username] === password;
         }
 
-        // Variables específicas para el juego de dados estilo Qzino
-        let tipoLanzamiento = "debajo"; // "debajo" o "encima"
+        // Variables específicas para el juego de dados
+        let tipoLanzamiento = "debajo"; 
         let valorSliderDice = 50;
         let multiplicadorDice = 1.98;
         let probabilidadDice = 50;
+
+        // Variables específicas para el juego de Blackjack (Estilo Qzino)
+        let bjApuestaActual = 1.00;
+        let bjManoJugador = [];
+        let bjManoCrupier = [];
+        let bjEstadoJuego = "APUESTA"; // "APUESTA", "JUGANDO", "FINALIZADO"
 
         function cerrarModales() {
             const loginModal = document.getElementById('loginModal');
@@ -727,7 +728,7 @@
                     
                     let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
                     if (usuarios[userVal]) {
-                        alert("El nombre de usuario ya existe. Por favor, elige otro o inicia sesión.");
+                        alert("El nombre de usuario ya existe. Por favor, elige otro e inicia sesión.");
                         return;
                     }
 
@@ -742,7 +743,7 @@
         function procesarLoginExitoso(nombreUsuario) {
             usuarioActualNombre = nombreUsuario || "Jugador";
             saldoActualGlobal = 0.00;
-            bonoActualGlobal = 5.00; // Garantiza los 5 USDT de bono al iniciar sesión correctamente
+            bonoActualGlobal = 5.00; 
             cerrarModales();
 
             const publicSite = document.getElementById('publicSite');
@@ -834,7 +835,7 @@
             if (tituloPantalla) tituloPantalla.textContent = nombreJuego;
             if (tituloArena) tituloArena.textContent = nombreJuego;
             
-            const visual = document.getElementById('areaVisualJuego');
+            const visual = document.getElementById('areaVisual`Juego');
             if (!visual) return;
 
             if (nombreJuego.includes('Dados')) {
@@ -878,7 +879,7 @@
                             </div>
                         </div>
 
-                        <!-- Pantalla interactiva derecha de dados estilo Qzino -->
+                        <!-- Pantalla interactiva derecha de dados -->
                         <div style="flex: 1; background: #07090f; border: 1px solid #1e293b; border-radius: 12px; padding: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 320px;">
                             <div style="display: flex; background: #131b2e; border-radius: 8px; padding: 4px; margin-bottom: 30px; gap: 4px;">
                                 <button id="btnDebajo" onclick="cambiarModoTirada('debajo')" style="background: #22c55e; border: none; color: #0b0f19; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Lanzar por debajo de</button>
@@ -912,6 +913,57 @@
                     </div>
                 `;
                 recalcularValoresDice();
+            } else if (nombreJuego.includes('Blackjack')) {
+                // Interfaz exacta inspirada en Qzino Multihand Blackjack (Mesa Verde, Fichas Inferiores, Cartas y Acciones)
+                bjEstadoJuego = "APUESTA";
+                bjApuestaActual = 1.00;
+                visual.innerHTML = `
+                    <div style="background: radial-gradient(circle, #0f4c3a 0%, #06281e 100%); border: 4px solid #1b3a2b; border-radius: 15px; padding: 25px; position: relative; min-height: 440px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: inset 0 0 40px rgba(0,0,0,0.6);">
+                        
+                        <!-- Header interno de la mesa -->
+                        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                            <div style="color: #d4af37; font-weight: bold; letter-spacing: 1px; font-size: 0.9rem;">CLASSIC MULTIHAND BLACKJACK</div>
+                            <div style="color: #9ca3af; font-size: 0.85rem;">PAYS 3 TO 2 • DEALER HITS ON SOFT 17</div>
+                        </div>
+
+                        <!-- Zona del Crupier -->
+                        <div style="text-align: center; margin: 10px 0;">
+                            <div style="color: #ffd700; font-size: 0.9rem; margin-bottom: 5px;">Crupier <span id="bjPuntajeCrupier" style="color:#fff;">(??)</span></div>
+                            <div id="bjCartasCrupier" style="display: flex; justify-content: center; gap: 8px; min-height: 80px; align-items: center;">
+                                <div style="background:#fff; color:#000; width:50px; height:70px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem; box-shadow:0 4px 8px rgba(0,0,0,0.4);">🂠</div>
+                                <div style="background:#fff; color:#000; width:50px; height:70px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem; box-shadow:0 4px 8px rgba(0,0,0,0.4);">🂠</div>
+                            </div>
+                        </div>
+
+                        <!-- Zona del Jugador -->
+                        <div style="text-align: center; margin: 10px 0;">
+                            <div style="color: #ffd700; font-size: 0.9rem; margin-bottom: 5px;">Tu Mano <span id="bjPuntajeJugador" style="color:#fff;">(0)</span></div>
+                            <div id="bjCartasJugador" style="display: flex; justify-content: center; gap: 8px; min-height: 80px; align-items: center;">
+                                <div style="color: rgba(255,255,255,0.5); font-style: italic; font-size: 0.9rem;">Coloca tu ficha y presiona Deal</div>
+                            </div>
+                        </div>
+
+                        <!-- Bandeja de Fichas Estilo Qzino y Controles Inferiores -->
+                        <div>
+                            <!-- Fichas seleccionables -->
+                            <div style="display: flex; justify-content: center; gap: 12px; margin-bottom: 15px; align-items: center; flex-wrap: wrap;">
+                                <div onclick="seleccionarFichaBj(1)" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #e2e8f0 0%, #94a3b8 100%); border: 3px dashed #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 0.8rem;">1.00</div>
+                                <div onclick="seleccionarFichaBj(5)" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #f87171 0%, #b91c1c 100%); border: 3px dashed #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 0.8rem;">5.00</div>
+                                <div onclick="seleccionarFichaBj(25)" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #60a5fa 0%, #1d4ed8 100%); border: 3px dashed #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 0.8rem;">25.00</div>
+                                <div onclick="seleccionarFichaBj(100)" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #facc15 0%, #a16207 100%); border: 3px dashed #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 0.8rem;">100</div>
+                                <div onclick="seleccionarFichaBj(500)" style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #c084fc 0%, #6b21a8 100%); border: 3px dashed #fff; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); font-size: 0.8rem;">500</div>
+                            </div>
+
+                            <!-- Botonera interactiva idéntica a Qzino -->
+                            <div style="display: flex; justify-content: center; gap: 15px; align-items: center;" id="bjContenedorBotones">
+                                <button onclick="doblarApuestaBj()" style="background: rgba(19, 27, 46, 0.8); border: 1px solid #d4af37; color: #ffd700; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;"><i class="fa-solid fa-xmark"></i> x2 BET</button>
+                                <button onclick="iniciarRepartoBlackjack()" id="btnBjDeal" style="background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa7c11 100%); border: none; color: #0b0f19; padding: 12px 35px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-transform: uppercase; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);">DEAL</button>
+                                <button onclick="reiniciarApuestaBj()" style="background: rgba(19, 27, 46, 0.8); border: 1px solid #1e293b; color: #9ca3af; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;"><i class="fa-solid fa-rotate-right"></i> REBET</button>
+                            </div>
+                        </div>
+
+                    </div>
+                `;
             } else if (nombreJuego.includes('Tragamonedas')) {
                 visual.innerHTML = `
                     <div style="text-align:center; padding: 20px; font-size: 50px;">🎰 7️⃣ 7️⃣ 7️⃣</div>
@@ -933,9 +985,245 @@
             }
             actualizarSaldosVisuales();
             const textoRes = document.getElementById('resultadoTextoJuego');
-            if (textoRes) textoRes.textContent = "Listo para apostar.";
+            if (textoRes) textoRes.textContent = "Configura tu apuesta y pon a prueba tu suerte.";
         }
 
+        // Lógica de funciones para Blackjack Qzino Style
+        function seleccionarFichaBj(monto) {
+            if (bjEstadoJuego !== "APUESTA") return;
+            bjApuestaActual = monto;
+            const textoRes = document.getElementById('resultadoTextoJuego');
+            if (textoRes) textoRes.textContent = `Ficha seleccionada: ${monto.toFixed(2)} USDT. Presiona DEAL para iniciar.`;
+        }
+
+        function doblarApuestaBj() {
+            if (bjEstadoJuego === "APUESTA") {
+                bjApuestaActual *= 2;
+                const textoRes = document.getElementById('resultadoTextoJuego');
+                if (textoRes) textoRes.textContent = `Apuesta duplicada a: ${bjApuestaActual.toFixed(2)} USDT.`;
+            } else if (bjEstadoJuego === "JUGANDO") {
+                // Doblar en jugada (Double Down)
+                let saldoTotalDisponible = saldoActualGlobal + bonoActualGlobal;
+                if (saldoTotalDisponible < bjApuestaActual) {
+                    alert("Saldo insuficiente para doblar la apuesta.");
+                    return;
+                }
+                deducirSaldo(bjApuestaActual);
+                bjApuestaActual *= 2;
+                bjManoJugador.push(generarCartaAleatoriaBj());
+                actualizarVistaMesaBj();
+                
+                // Si se pasa de 21 pierde automáticamente, sino pasa al turno crupier
+                if (calcularPuntajeBj(bjManoJugador) > 21) {
+                    finalizarMesaBj("PERDIO");
+                } else {
+                    turnoCrupierBj();
+                }
+            }
+        }
+
+        function reiniciarApuestaBj() {
+            if (bjEstadoJuego === "APUESTA") {
+                bjApuestaActual = 1.00;
+                const textoRes = document.getElementById('resultadoTextoJuego');
+                if (textoRes) textoRes.textContent = "Apuesta restablecida a 1.00 USDT.";
+            } else {
+                cargarJuego('Blackjack Clásico');
+            }
+        }
+
+        function generarCartaAleatoriaBj() {
+            const palos = ['♠', '♥', '♦', '♣'];
+            const valores = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            const p = palos[Math.floor(Math.random() * palos.length)];
+            const v = valores[Math.floor(Math.random() * valores.length)];
+            let valorNumerico = 10;
+            if (!['J', 'Q', 'K'].includes(v)) {
+                valorNumerico = v === 'A' ? 11 : parseInt(v);
+            }
+            return { palo: p, valor: v, puntos: valorNumerico };
+        }
+
+        function calcularPuntajeBj(mano) {
+            let total = 0;
+            let ases = 0;
+            for (let carta of mano) {
+                total += carta.puntos;
+                if (carta.valor === 'A') ases++;
+            }
+            while (total > 21 && ases > 0) {
+                total -= 10;
+                ases--;
+            }
+            return total;
+        }
+
+        function deducirSaldo(monto) {
+            let restanteAPagar = monto;
+            if (bonoActualGlobal >= restanteAPagar) {
+                bonoActualGlobal -= restanteAPagar;
+            } else {
+                restanteAPagar -= bonoActualGlobal;
+                bonoActualGlobal = 0;
+                saldoActualGlobal -= restanteAPagar;
+            }
+            actualizarSaldosVisuales();
+        }
+
+        function iniciarRepartoBlackjack() {
+            let saldoTotalDisponible = saldoActualGlobal + bonoActualGlobal;
+            if (saldoTotalDisponible < bjApuestaActual) {
+                alert("Saldo insuficiente. Realiza un depósito para jugar Blackjack.");
+                return;
+            }
+
+            deducirSaldo(bjApuestaActual);
+            bjEstadoJuego = "JUGANDO";
+
+            bjManoJugador = [generarCartaAleatoriaBj(), generarCartaAleatoriaBj()];
+            bjManoCrupier = [generarCartaAleatoriaBj(), generarCartaAleatoriaBj()];
+
+            actualizarVistaMesaBj();
+
+            // Cambiar botonera inferior a acciones de Blackjack (Hit, Stand, Double)
+            const contenedorBotones = document.getElementById('bjContenedorBotones');
+            if (contenedorBotones) {
+                contenedorBotones.innerHTML = `
+                    <button onclick="accionPedirCartaBj()" style="background: #22c55e; border: none; color: #0b0f19; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95rem;">PEDIR (HIT)</button>
+                    <button onclick="accionPlantarBj()" style="background: #ef4444; border: none; color: #fff; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95rem;">PLANTARSE (STAND)</button>
+                    <button onclick="doblarApuestaBj()" style="background: #d4af37; border: none; color: #0b0f19; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.95rem;">DOBLAR (2X)</button>
+                `;
+            }
+
+            const textoRes = document.getElementById('resultadoTextoJuego');
+            if (textoRes) textoRes.textContent = "Tu turno: Pide carta o plántate.";
+
+            // Comprobar Blackjack natural inmediato
+            if (calcularPuntajeBj(bjManoJugador) === 21) {
+                finalizarMesaBj("BLACKJACK");
+            }
+        }
+
+        function actualizarVistaMesaBj(mostrarCrupierCompleto = false) {
+            const divJugador = document.getElementById('bjCartasJugador');
+            const divCrupier = document.getElementById('bjCartasCrupier');
+            const spanPtsJugador = document.getElementById('bjPuntajeJugador');
+            const spanPtsCrupier = document.getElementById('bjPuntajeCrupier');
+
+            if (divJugador) {
+                divJugador.innerHTML = bjManoJugador.map(c => `
+                    <div style="background:#fff; color:${['♥','♦'].includes(c.palo)?'#ef4444':'#000'}; width:50px; height:70px; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; font-size:1rem; box-shadow:0 4px 8px rgba(0,0,0,0.4);">
+                        <span>${c.valor}</span>
+                        <span style="font-size:1.2rem;">${c.palo}</span>
+                    </div>
+                `).join('');
+            }
+
+            if (divCrupier) {
+                if (mostrarCrupierCompleto) {
+                    divCrupier.innerHTML = bjManoCrupier.map(c => `
+                        <div style="background:#fff; color:${['♥','♦'].includes(c.palo)?'#ef4444':'#000'}; width:50px; height:70px; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; font-size:1rem; box-shadow:0 4px 8px rgba(0,0,0,0.4);">
+                            <span>${c.valor}</span>
+                            <span style="font-size:1.2rem;">${c.palo}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    divCrupier.innerHTML = `
+                        <div style="background:#fff; color:${['♥','♦'].includes(bjManoCrupier[0].palo)?'#ef4444':'#000'}; width:50px; height:70px; border-radius:6px; display:flex; flex-direction:column; align-items:center; justify-content:center; font-weight:bold; font-size:1rem; box-shadow:0 4px 8px rgba(0,0,0,0.4);">
+                            <span>${bjManoCrupier[0].valor}</span>
+                            <span style="font-size:1.2rem;">${bjManoCrupier[0].palo}</span>
+                        </div>
+                        <div style="background:#1e293b; color:#d4af37; width:50px; height:70px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:bold; font-size:1.2rem; border:1px solid #d4af37; box-shadow:0 4px 8px rgba(0,0,0,0.4);">🂠</div>
+                    `;
+                }
+            }
+
+            if (spanPtsJugador) spanPtsJugador.textContent = `(${calcularPuntajeBj(bjManoJugador)})`;
+            if (spanPtsCrupier) spanPtsCrupier.textContent = mostrarCrupierCompleto ? `(${calcularPuntajeBj(bjManoCrupier)})` : `(${bjManoCrupier[0].puntos})`;
+        }
+
+        function accionPedirCartaBj() {
+            if (bjEstadoJuego !== "JUGANDO") return;
+            bjManoJugador.push(generarCartaAleatoriaBj());
+            actualizarVistaMesaBj();
+
+            let puntosJugador = calcularPuntajeBj(bjManoJugador);
+            if (puntosJugador > 21) {
+                finalizarMesaBj("PERDIO");
+            } else if (puntosJugador === 21) {
+                accionPlantarBj();
+            }
+        }
+
+        function accionPlantarBj() {
+            if (bjEstadoJuego !== "JUGANDO") return;
+            turnoCrupierBj();
+        }
+
+        function turnoCrupierBj() {
+            actualizarVistaMesaBj(true);
+            let puntosCrupier = calcularPuntajeBj(bjManoCrupier);
+
+            // Regla: Dealer hits on soft 17
+            let intervalo = setInterval(() => {
+                puntosCrupier = calcularPuntajeBj(bjManoCrupier);
+                if (puntosCrupier < 17 || (puntosCrupier === 17 && bjManoCrupier.some(c => c.valor === 'A'))) {
+                    bjManoCrupier.push(generarCartaAleatoriaBj());
+                    actualizarVistaMesaBj(true);
+                } else {
+                    clearInterval(intervalo);
+                    evaluarResultadoFinalBj();
+                }
+            }, 600);
+        }
+
+        function evaluarResultadoFinalBj() {
+            let ptsJugador = calcularPuntajeBj(bjManoJugador);
+            let ptsCrupier = calcularPuntajeBj(bjManoCrupier);
+
+            if (ptsCrupier > 21 || ptsJugador > ptsCrupier) {
+                finalizarMesaBj("GANO");
+            } else if (ptsJugador === ptsCrupier) {
+                finalizarMesaBj("EMPATE");
+            } else {
+                finalizarMesaBj("PERDIO");
+            }
+        }
+
+        function finalizarMesaBj(resultado) {
+            bjEstadoJuego = "FINALIZADO";
+            actualizarVistaMesaBj(true);
+
+            const textoRes = document.getElementById('resultadoTextoJuego');
+            if (resultado === "GANO") {
+                let premio = bjApuestaActual * 2;
+                saldoActualGlobal += premio;
+                if (textoRes) textoRes.innerHTML = `🎉 ¡Victoria! Ganaste <span style="color:#22c55e;">+${(premio - bjApuestaActual).toFixed(2)} USDT</span>.`;
+            } else if (resultado === "BLACKJACK") {
+                let premio = bjApuestaActual * 2.5;
+                saldoActualGlobal += premio;
+                if (textoRes) textoRes.innerHTML = `🔥 ¡BLACKJACK! Ganaste <span style="color:#22c55e;">+${(premio - bjApuestaActual).toFixed(2)} USDT</span>.`;
+            } else if (resultado === "EMPATE") {
+                saldoActualGlobal += bjApuestaActual;
+                if (textoRes) textoRes.innerHTML = `🤝 ¡Empate (Push)! Se devuelve tu apuesta.`;
+            } else {
+                if (textoRes) textoRes.innerHTML = `❌ Perdiste <span style="color:#ef4444;">-${bjApuestaActual.toFixed(2)} USDT</span>.`;
+            }
+
+            actualizarSaldosVisuales();
+
+            // Restaurar botones de apuesta inicial estilo Qzino
+            const contenedorBotones = document.getElementById('bjContenedorBotones');
+            if (contenedorBotones) {
+                contenedorBotones.innerHTML = `
+                    <button onclick="doblarApuestaBj()" style="background: rgba(19, 27, 46, 0.8); border: 1px solid #d4af37; color: #ffd700; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;"><i class="fa-solid fa-xmark"></i> x2 BET</button>
+                    <button onclick="iniciarRepartoBlackjack()" id="btnBjDeal" style="background: linear-gradient(135deg, #f3e5ab 0%, #d4af37 50%, #aa7c11 100%); border: none; color: #0b0f19; padding: 12px 35px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; text-transform: uppercase; box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);">DEAL</button>
+                    <button onclick="reiniciarApuestaBj()" style="background: rgba(19, 27, 46, 0.8); border: 1px solid #1e293b; color: #9ca3af; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.9rem;"><i class="fa-solid fa-rotate-right"></i> REBET</button>
+                `;
+            }
+        }
+
+        // Funciones auxiliares para dados
         function setImporteFijo(valor) {
             const input = document.getElementById('inputImporteDice');
             if (input) {
@@ -1068,7 +1356,6 @@
                     ganado = Math.random() >= 0.5;
                 }
 
-                // Descontar primero del bono y luego del saldo real si es necesario
                 let restanteAPagar = montoApuesta;
                 if (bonoActualGlobal >= restanteAPagar) {
                     bonoActualGlobal -= restanteAPagar;
