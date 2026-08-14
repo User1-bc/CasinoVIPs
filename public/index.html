@@ -667,9 +667,7 @@
         setInterval(function() {        
             let variacion = Math.floor(Math.random() * 28) - 12;                
             jugadoresActuales += variacion;                         
-            if (jugadoresActuales < 3200) {             
-                jugadoresActuales = 3215;
-            }                                       
+            if (jugadoresActuales < 3200) { jugadoresActuales = 3215; }                                       
             spanContador.textContent = jugadoresActuales.toLocaleString();
         }, 120000);
 
@@ -687,374 +685,94 @@
 
         function abrirModalLogin() { cerrarModales(); document.getElementById('loginModal').style.display = 'flex'; }
         function abrirModalRegistro() { cerrarModales(); document.getElementById('registerModal').style.display = 'flex'; }
-        function cambiarARegistro() { abrirModalRegistro(); }
 
         function cargarJuego(nombreJuego) {
             juegoActualActivo = nombreJuego;
             document.getElementById('userDashboard').style.display = 'none';
             document.getElementById('gameScreen').style.display = 'block';
             document.getElementById('tituloJuegoPantalla').textContent = nombreJuego;
-            document.getElementById('tituloJuegoArena').textContent = nombreJuego;
-            
-            document.getElementById('saldoJuegoSpan').textContent = saldoActualGlobal.toFixed(2);
-            document.getElementById('bonoJuegoSpan').textContent = bonoActualGlobal.toFixed(2);
             
             const visual = document.getElementById('areaVisualJuego');
 
             if (nombreJuego.includes('Tragamonedas')) {
-                visual.innerHTML = `
-                    <div style="display: flex; justify-content: center; gap: 15px; margin: 20px 0;">
-                        <div class="rodillo" id="rodillo1" style="background: #111; border: 2px solid #f39c12; border-radius: 8px; padding: 15px 20px; font-size: 35px; min-width: 60px; text-align: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">🍒</div>
-                        <div class="rodillo" id="rodillo2" style="background: #111; border: 2px solid #f39c12; border-radius: 8px; padding: 15px 20px; font-size: 35px; min-width: 60px; text-align: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">🍋</div>
-                        <div class="rodillo" id="rodillo3" style="background: #111; border: 2px solid #f39c12; border-radius: 8px; padding: 15px 20px; font-size: 35px; min-width: 60px; text-align: center; box-shadow: inset 0 0 10px rgba(0,0,0,0.8);">💎</div>
-                    </div>
-                `;
+                visual.innerHTML = `<div style="text-align:center; padding: 40px; font-size: 50px;">🎰 7️⃣ 7️⃣</div>`;
             } else if (nombreJuego.includes('Dados')) {
                 visual.innerHTML = `
-                    <div style="background: #0d0e12; border: 2px solid #f39c12; border-radius: 12px; padding: 25px; max-width: 450px; margin: 0 auto; color: #fff; font-family: sans-serif; box-shadow: 0 8px 25px rgba(0,0,0,0.6);">
-                        
-                        <!-- Pestañas Manual / Automático -->
-                        <div style="display: flex; background: #1a1c23; border-radius: 8px; padding: 4px; margin-bottom: 20px;">
-                            <button style="flex: 1; background: #f39c12; color: #000; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer;">Manual</button>
-                            <button style="flex: 1; background: transparent; color: #888; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer;">Automático</button>
+                    <div style="background: #0d0e12; border: 2px solid #f39c12; border-radius: 12px; padding: 30px; max-width: 450px; margin: 20px auto; color: #fff; font-family: sans-serif; box-shadow: 0 8px 25px rgba(0,0,0,0.6);">
+                        <div style="display: flex; background: #1a1c23; border-radius: 8px; padding: 4px; margin-bottom: 25px;">
+                            <button style="flex: 1; background: #f39c12; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">Manual</button>
+                            <button style="flex: 1; background: transparent; color: #888; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">Automático</button>
                         </div>
-
-                        <!-- Importe de Apuesta -->
-                        <div style="margin-bottom: 15px; text-align: left;">
-                            <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 5px;">Importe (TRX)</label>
-                            <div style="display: flex; align-items: center; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 8px 12px;">
-                                <span style="color: #ff0055; font-weight: bold; margin-right: 8px;">TRX</span>
-                                <input type="number" id="montoApuesta" value="1.00" min="1.00" step="any" style="background: transparent; border: none; color: #fff; font-size: 16px; width: 100%; outline: none;">
-                                <div style="display: flex; gap: 5px;">
-                                    <button onclick="document.getElementById('montoApuesta').value = Math.max(1, (parseFloat(document.getElementById('montoApuesta').value) / 2)).toFixed(2)" style="background: #252833; border: none; color: #aaa; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">½</button>
-                                    <button onclick="document.getElementById('montoApuesta').value = (parseFloat(document.getElementById('montoApuesta').value) * 2).toFixed(2)" style="background: #252833; border: none; color: #aaa; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">2×</button>
+                        <div style="margin-bottom: 25px; text-align: left;">
+                            <label style="font-size: 13px; color: #aaa; display: block; margin-bottom: 8px; text-transform: uppercase;">Importe a apostar (TRX)</label>
+                            <div style="display: flex; align-items: center; background: #1a1c23; border: 2px solid #333; border-radius: 10px; padding: 12px 15px;">
+                                <span style="color: #ff0055; font-weight: bold; margin-right: 12px; font-size: 18px;">TRX</span>
+                                <input type="number" id="montoApuesta" value="1.00" min="1.00" step="any" style="background: transparent; border: none; color: #fff; font-size: 20px; width: 100%; outline: none; font-weight: bold;">
+                                <div style="display: flex; gap: 8px;">
+                                    <button onclick="document.getElementById('montoApuesta').value = Math.max(1, (parseFloat(document.getElementById('montoApuesta').value) / 2)).toFixed(2)" style="background: #252833; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; cursor: pointer;">½</button>
+                                    <button onclick="document.getElementById('montoApuesta').value = (parseFloat(document.getElementById('montoApuesta').value) * 2).toFixed(2)" style="background: #252833; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; cursor: pointer;">2×</button>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Multiplicador y Probabilidad -->
-                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
-                            <div style="flex: 1; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 10px; text-align: left;">
+                        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
+                            <div style="flex: 1; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 12px; text-align: center;">
                                 <span style="font-size: 11px; color: #888; display: block;">Multiplicador</span>
-                                <span id="multiplicadorDice" style="font-size: 18px; color: #f39c12; font-weight: bold;">1.96x</span>
+                                <span id="multiplicadorDice" style="font-size: 20px; color: #f39c12; font-weight: bold;">1.96x</span>
                             </div>
-                            <div style="flex: 1; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 10px; text-align: left;">
-                                <span style="font-size: 11px; color: #888; display: block;">Probabilidad de ganar</span>
-                                <span id="probabilidadDice" style="font-size: 18px; color: #fff; font-weight: bold;">50.00%</span>
+                            <div style="flex: 1; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 12px; text-align: center;">
+                                <span style="font-size: 11px; color: #888; display: block;">Probabilidad</span>
+                                <span id="probabilidadDice" style="font-size: 20px; color: #fff; font-weight: bold;">50.00%</span>
                             </div>
                         </div>
-
-                        <!-- Pantalla del Juego / Slider -->
-                        <div style="background: #14161c; border-radius: 10px; padding: 20px; text-align: center; margin-bottom: 20px; border: 1px solid #252833;">
-                            <div style="display: flex; justify-content: space-between; font-size: 24px; font-weight: bold; margin-bottom: 15px;">
-                                <span id="resultadoNumeroDice" style="color: #f39c12;">50</span>
-                                <span style="color: #666; font-size: 16px; align-self: center;">Lanzar por debajo de</span>
-                            </div>
-                            <!-- Barra deslizante interactiva -->
+                        <div style="background: #14161c; border-radius: 10px; padding: 25px; text-align: center; border: 1px solid #252833;">
+                            <div id="resultadoNumeroDice" style="font-size: 48px; font-weight: bold; color: #f39c12; margin-bottom: 10px;">50</div>
                             <input type="range" id="sliderDice" min="1" max="99" value="50" style="width: 100%; accent-color: #f39c12; cursor: pointer;" oninput="actualizarValoresDice(this.value)">
-                            <div style="display: flex; justify-content: space-between; font-size: 12px; color: #666; margin-top: 8px;">
-                                <span>0</span>
-                                <span>25</span>
-                                <span>50</span>
-                                <span>75</span>
-                                <span>99</span>
-                            </div>
                         </div>
-
                     </div>
                 `;
-            } else if (nombreJuego.includes('Ruleta')) {
-                visual.innerHTML = '🎯 🔴 ⚫';
             } else {
-                visual.innerHTML = '🃏 🂡 👑';
+                visual.innerHTML = '🎯 🔴 ⚫';
             }
-            document.getElementById('resultadoTextoJuego').textContent = "Listo para apostar con fondos reales o bono. ¡Mucha suerte!";
-        }
-
-        function regresarAlDashboard() {
-            document.getElementById('gameScreen').style.display = 'none';
-            document.getElementById('userDashboard').style.display = 'block';
-        }
-
-        async function solicitarRetiroReal() {
-            const totalDisponibles = saldoActualGlobal;
-            if (totalDisponibles <= 0) {
-                alert("❌ No tienes saldo real disponible para retirar.");
-                return;
-            }
-
-            const inputMonto = prompt(`¿Cuántos USDT deseas retirar en total? (Saldo disponible: $${totalDisponibles.toFixed(2)} | Mínimo: 20.00 USDT):`);
-            if (inputMonto === null) return;
-
-            const montoSolicitado = parseFloat(inputMonto);
-
-            if (isNaN(montoSolicitado) || montoSolicitado <= 0) {
-                alert("❌ Ingresa una cantidad numérica válida.");
-                return;
-            }
-
-            if (montoSolicitado < 20.00) {
-                alert("❌ El límite mínimo de retiro permitido es de 20.00 USDT.");
-                return;
-            }
-
-            if (montoSolicitado > totalDisponibles) {
-                alert("❌ No posees suficiente saldo real en tu wallet para procesar esta salida.");
-                return;
-            }
-
-            const walletDestino = prompt("Ingresa tu dirección de billetera USDT (Red TRC20 / TRON, debe empezar con T):");
-            if (!walletDestino) return;
-
-            if (!walletDestino.startsWith("T") || walletDestino.length < 30) {
-                alert("❌ Dirección de billetera inválida. Asegúrate de enviar una dirección USDT TRC20 (empieza con T).");
-                return;
-            }
-
-            const comisionCasa = montoSolicitado * 0.05;
-            const montoNetoEnvio = montoSolicitado - comisionCasa;
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/withdraw`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        telegram_id: usuarioTelegramId,
-                        amount: montoSolicitado,
-                        wallet: walletDestino
-                    })
-                });
-                
-                const result = await res.json();
-                if (!res.ok) {
-                    alert(result.error || "❌ Error al procesar el retiro en el servidor.");
-                    return;
-                }
-
-                saldoActualGlobal -= montoSolicitado;
-                document.getElementById('saldoUsuarioSpan').textContent = saldoActualGlobal.toFixed(2);
-                document.getElementById('saldoBonoSpan').textContent = bonoActualGlobal.toFixed(2);
-                if(document.getElementById('saldoJuegoSpan')) {
-                    document.getElementById('saldoJuegoSpan').textContent = saldoActualGlobal.toFixed(2);
-                    document.getElementById('bonoJuegoSpan').textContent = bonoActualGlobal.toFixed(2);
-                }
-
-                alert(`✅ ¡Solicitud de retiro registrada con éxito!\n\nMonto Solicitado: ${montoSolicitado.toFixed(2)} USDT\nComisión de Red (5%): ${comisionCasa.toFixed(2)} USDT\nMonto a Recibir (Neto): ${montoNetoEnvio.toFixed(2)} USDT\nWallet: ${walletDestino}\n\n⏳ Tu retiro está siendo procesado por el sistema.`);
-
-            } catch (err) {
-                alert("❌ Error crítico de conexión con el servidor backend al procesar el retiro.");
-            }
+            document.getElementById('resultadoTextoJuego').textContent = "Listo para apostar.";
         }
 
         async function ejecutarJugadaReal() {
             const montoApuesta = parseFloat(document.getElementById('montoApuesta').value);
-            const totalDisponibles = saldoActualGlobal + bonoActualGlobal;
-
-            if (totalDisponibles < montoApuesta) {
-                alert("❌ Saldo insuficiente en tu wallet. Realiza un depósito (Mínimo 10 USDT) para continuar.");
-                return;
-            }
-
             const btn = document.getElementById('btnEjecutarJuego');
-            const visual = document.getElementById('areaVisualJuego');
             const textoRes = document.getElementById('resultadoTextoJuego');
 
             btn.disabled = true;
-            btn.style.opacity = "0.6";
-            textoRes.textContent = "⏳ Ejecutando apuesta y actualizando balance real...";
+            textoRes.textContent = "⏳ Ejecutando...";
 
             setTimeout(async () => {
                 let ganado = false;
-                let multiplicador = 0;
-
-                if (juegoActualActivo.includes('Tragamonedas')) {
-                    const rand = Math.random();
-                    if (rand < 0.05) { multiplicador = 8.0; ganado = true; } 
-                    else if (rand < 0.25) { multiplicador = 2.5; ganado = true; } 
-                    visual.innerHTML = ganado ? '🎰 7️⃣ 7️⃣' : '❌ 🍋 🍒';
-                } else if (juegoActualActivo.includes('Dados')) {
+                if (juegoActualActivo.includes('Dados')) {
                     const sliderVal = parseInt(document.getElementById('sliderDice').value);
                     const tiradaRandom = Math.floor(Math.random() * 100) + 1;
                     ganado = tiradaRandom < sliderVal;
-                    multiplicador = ganado ? parseFloat(document.getElementById('multiplicadorDice').textContent) : 0;
-                    
-                    document.getElementById('resultadoNumeroDice').textContent = tiradaRandom;
-                    document.getElementById('resultadoNumeroDice').style.color = ganado ? '#2ecc71' : '#e74c3c';
-                } else {
-                    ganado = Math.random() >= 0.5;
-                    multiplicador = ganado ? 2.0 : 0;
-                    visual.innerHTML = ganado ? '🎯 ✔️' : '🎯 ❌';
+                    const elNumero = document.getElementById('resultadoNumeroDice');
+                    elNumero.textContent = tiradaRandom;
+                    elNumero.style.color = ganado ? '#2ecc71' : '#e74c3c';
                 }
-
-                let montoPremio = ganado ? montoApuesta * multiplicador : 0;
-
-                let deductFromBonus = Math.min(bonoActualGlobal, montoApuesta);
-                let deductFromReal = montoApuesta - deductFromBonus;
-
-                bonoActualGlobal -= deductFromBonus;
-                saldoActualGlobal -= deductFromReal;
-
-                if (montoPremio > 0) {
-                    saldoActualGlobal += montoPremio;
-                }
-
-                document.getElementById('saldoJuegoSpan').textContent = saldoActualGlobal.toFixed(2);
-                document.getElementById('bonoJuegoSpan').textContent = bonoActualGlobal.toFixed(2);
-                document.getElementById('saldoUsuarioSpan').textContent = saldoActualGlobal.toFixed(2);
-                document.getElementById('saldoBonoSpan').textContent = bonoActualGlobal.toFixed(2);
-                
 
                 if (ganado) {
-                    textoRes.innerHTML = `🎉 ¡FELICIDADES! Has ganado <strong>$${montoPremio.toFixed(2)} USDT</strong>.`;
+                    textoRes.innerHTML = `🎉 ¡Ganaste!`;
+                    saldoActualGlobal += montoApuesta;
                 } else {
-                    textoRes.innerHTML = `❌ Se han descontado <strong>$${montoApuesta.toFixed(2)} USDT</strong> de tu wallet por esta derrota.`;
+                    textoRes.innerHTML = `❌ Perdiste.`;
+                    saldoActualGlobal -= montoApuesta;
                 }
-
-                try {
-                    await fetch(`${BACKEND_URL}/api/update-balance`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            username: usuarioActualNombre,
-                            balance: saldoActualGlobal,
-                            bonus_balance: bonoActualGlobal
-                        })
-                    });
-                } catch (error) {
-                    console.error("Error al sincronizar el saldo:", error);
-                }
-
-                btn.disabled = false;
-                btn.style.opacity = "1";
-            }, 1500);
-            
-        }
-
-        document.getElementById('webRegisterForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const data = { 
-                username: document.getElementById('regUser').value, 
-                password: document.getElementById('regPass').value 
-            };
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/register`, { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' }, 
-                    body: JSON.stringify(data) 
-                });
-                const result = await res.json();
-                if (res.ok) { 
-                    alert("¡Registro exitoso! Ya puedes iniciar sesión."); 
-                    document.getElementById('webRegisterForm').reset();
-                    cerrarModales(); 
-                    abrirModalLogin(); 
-                } else { 
-                    alert(result.error || "Error al registrarse."); 
-                }
-            } catch (err) { 
-                alert("Error crítico de conexión con el servidor backend."); 
-            }
-        });
-
-        document.getElementById('webLoginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const userInput = document.getElementById('loginUser').value.trim();
-            const passInput = document.getElementById('loginPass').value;
-
-            const loginData = {
-                username: userInput,
-                identifier: userInput,
-                password: passInput
-            };
-
-            try {
-                const res = await fetch(`${BACKEND_URL}/api/login`, {  
-                    method: 'POST',  
-                    headers: { 'Content-Type': 'application/json' },  
-                    body: JSON.stringify(loginData)  
-                });
-                const result = await res.json();
                 
-                if (res.ok) {
-                    cerrarModales();
-                    document.getElementById('publicSite').style.display = 'none';
-                    document.getElementById('userDashboard').style.display = 'block';
-                    
-                    usuarioActualNombre = result.username || userInput;
-                    usuarioTelegramId = result.telegram_id || null;
-                    document.getElementById('nombreUsuarioSpan').textContent = usuarioActualNombre;
-                    
-                    const rawBalance = result.balance !== undefined ? result.balance : (result.saldo !== undefined ? result.saldo : 0);
-                    const rawBonus = result.bonus_balance !== undefined ? result.bonus_balance : 0;
-
-                    saldoActualGlobal = Number(rawBalance) || 0;
-                    bonoActualGlobal = Number(rawBonus) || 0;
-
-                    document.getElementById('saldoUsuarioSpan').textContent = saldoActualGlobal.toFixed(2);
-                    document.getElementById('saldoBonoSpan').textContent = bonoActualGlobal.toFixed(2);
-                    
-                    document.getElementById('webLoginForm').reset();
-                } else {
-                    alert(result.error || "Credenciales incorrectas.");
-                }
-            } catch (err) {
-                alert("Error de conexión con el servidor de login.");
-            }
-        });
-
-        function cerrarSesion() {
-            document.getElementById('userDashboard').style.display = 'none';
-            document.getElementById('gameScreen').style.display = 'none';
-            document.getElementById('publicSite').style.display = 'block';
-            saldoActualGlobal = 0.00;
-            bonoActualGlobal = 0.00;
-            usuarioTelegramId = null;
-            alert("Sesión finalizada de manera segura.");
-        }
-
-        async function conectarMetaMask() {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    if (accounts.length > 0) {
-                        alert(`¡Wallet MetaMask conectada con éxito!\nCuenta activa: ${accounts[0]}`);
-                    }
-                } catch (error) {
-                    if (error.code === 4001) {
-                        alert("❌ Rechazaste la conexión en MetaMask.");
-                    } else {
-                        alert("❌ Error al conectar con MetaMask: " + (error.message || error));
-                    }
-                }
-            } else {
-                alert("⚠️ MetaMask no detectado. Si estás en el celular, abre este sitio dentro del navegador integrado de MetaMask o Trust Wallet.");
-            }
-        }
-
-        let qrGenerado = false;
-        function generarQRDirecto() {
-            const qrArea = document.getElementById('qrArea');
-            qrArea.style.display = 'block';
-            if (!qrGenerado) {
-                const walletAddress = document.getElementById('walletDestino').textContent;
-                new QRCode(document.getElementById("qrcode"), {
-                    text: walletAddress,
-                    width: 150,
-                    height: 150,
-                    colorDark : "#000000",
-                    colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.H
-                });
-                qrGenerado = true;
-            }
+                document.getElementById('saldoJuegoSpan').textContent = saldoActualGlobal.toFixed(2);
+                document.getElementById('saldoUsuarioSpan').textContent = saldoActualGlobal.toFixed(2);
+                btn.disabled = false;
+            }, 1000);
         }
 
         function actualizarValoresDice(val) {
             document.getElementById('resultadoNumeroDice').textContent = val;
-            let probabilidad = val;
-            let multiplicador = (99 / probabilidad).toFixed(2);
-            document.getElementById('probabilidadDice').textContent = probabilidad + "%";
-            document.getElementById('multiplicadorDice').textContent = multiplicador + "x";
+            document.getElementById('probabilidadDice').textContent = val + "%";
+            document.getElementById('multiplicadorDice').textContent = (99 / val).toFixed(2) + "x";
         }
     </script>
 </body>
