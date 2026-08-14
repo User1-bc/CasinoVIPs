@@ -862,7 +862,6 @@
             btn.disabled = true;
             btn.style.opacity = "0.6";
             textoRes.textContent = "⏳ Ejecutando apuesta y actualizando balance real...";
-            visual.innerHTML = '🔄 🎲 🔄';
 
             setTimeout(async () => {
                 let ganado = false;
@@ -878,7 +877,9 @@
                     const tiradaRandom = Math.floor(Math.random() * 100) + 1;
                     ganado = tiradaRandom < sliderVal;
                     multiplicador = ganado ? parseFloat(document.getElementById('multiplicadorDice').textContent) : 0;
-                    visual.innerHTML = `🎲 (${tiradaRandom})`;
+                    
+                    document.getElementById('resultadoNumeroDice').textContent = tiradaRandom;
+                    document.getElementById('resultadoNumeroDice').style.color = ganado ? '#2ecc71' : '#e74c3c';
                 } else {
                     ganado = Math.random() >= 0.5;
                     multiplicador = ganado ? 2.0 : 0;
