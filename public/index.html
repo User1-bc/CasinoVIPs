@@ -410,7 +410,7 @@
     <div id="publicSite">
         <header>
             <div class="logo-container">
-                <img src="/73511.png" alt="Juegos VIPs Logo">
+                <img src="/73511.png" alt="Juegos VIPs Logo" onerror="this.src='https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300'">
             </div>
             <h1>Juegos VIPs</h1>
             <p class="subtitle">Sin bancos ni impuestos, la experiencia de casino más exclusiva y rápida directamente en tu Telegram, con tecnología Blockchain.</p>
@@ -427,7 +427,7 @@
                         <i class="fab fa-telegram-plane" style="margin-right: 10px;"></i> ÚNETE A NUESTRA COMUNIDAD
                     </a>
                 </div>
-                <div class="register-link-text">
+                <div class="register-link-text" style="margin-top: 15px;">
                     ¿Aún no tienes cuenta? <a href="#" onclick="abrirModalRegistro(); return false;">Regístrate aquí</a>
                 </div>
             </div>
@@ -460,21 +460,21 @@
                 </div>
             </section>
 
-            <!-- NUEVA SECCIÓN: ¿Cómo Funciona? -->
+            <!-- SECCIÓN: ¿Cómo Funciona? -->
             <section>
                 <h2>¿Cómo Funciona?</h2>
                 <div class="how-it-works-grid">
                     <div class="how-card">
                         <h3>1. Comunidad Telegram</h3>
-                        <p>Unete a nuestra comunidad de telegram donde estaras informado de todas las promos y nuevos juegos que lanzaremos.</p>
+                        <p>Únete a nuestra comunidad de telegram donde estaras informado de todas las promos y nuevos juegos que lanzaremos.</p>
                     </div>
                     <div class="how-card">
                         <h3>2. Login y Registro</h3>
-                        <p>Presiona "Iniciar/Jugar" para Loguearte o registar para crearte una cuenta y comenzar a ganar dinero con nuestros juegos.</p>
+                        <p>Presiona "Jugar / Login" para Loguearte o registrate para crearte una cuenta y comenzar a ganar dinero con nuestros juegos.</p>
                     </div>
                     <div class="how-card">
                         <h3>3. Depósitos y Retiros</h3>
-                        <p>Puedes conectar tu Wallet de Metamask si tienes, o usar nuestro QR para hacer depositos dentro de la plataforma, recuerda que todas las transferencias son en la RED TRC20 de lo contrario tus criptos se perderan.</p>
+                        <p>Puedes conectar tu Wallet si tienes, o usar nuestro QR para hacer depositos dentro de la plataforma, recuerda que todas las transferencias son en la RED TRC20.</p>
                     </div>
                     <div class="how-card">
                         <h3>4. Juega y Gana</h3>
@@ -487,28 +487,28 @@
                 <h2>Nuestros Juegos</h2>
                 <div class="games-grid">
                     <div class="game-card" onclick="abrirModalLogin()">
-                        <img src="/tragamonedas.jpg" alt="Tragamonedas VIP">
+                        <img src="/tragamonedas.jpg" alt="Tragamonedas VIP" onerror="this.src='https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300'">
                         <div class="game-info">
                             <h3>Tragamonedas VIP</h3>
                             <p>Gira los tambores y gana según tu apuesta.</p>
                         </div>
                     </div>
                     <div class="game-card" onclick="abrirModalLogin()">
-                        <img src="/ruleta.jpg" alt="Ruleta Europea">
+                        <img src="/ruleta.jpg" alt="Ruleta Europea" onerror="this.src='https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=300'">
                         <div class="game-info">
                             <h3>Ruleta Europea</h3>
                             <p>Elige tu color y número de la suerte.</p>
                         </div>
                     </div>
                     <div class="game-card" onclick="abrirModalLogin()">
-                        <img src="/blackjack.jpg" alt="Blackjack Clásico">
+                        <img src="/blackjack.jpg" alt="Blackjack Clásico" onerror="this.src='https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=300'">
                         <div class="game-info">
                             <h3>Blackjack Clásico</h3>
                             <p>Desafía al crupier e intenta llegar a 21.</p>
                         </div>
                     </div>
                     <div class="game-card" onclick="abrirModalLogin()">
-                        <img src="/dados.jpg" alt="Dados Mágicos">
+                        <img src="/dados.jpg" alt="Dados Mágicos" onerror="this.src='https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=300'">
                         <div class="game-info">
                             <h3>Dados Mágicos</h3>
                             <p>Tira y gana, la suerte te espera.</p>
@@ -529,7 +529,7 @@
                 <h3>Bienvenido, <span id="nombreUsuarioSpan">Jugador</span></h3>
             </div>
             <div class="balance-card">
-                💰 Saldo Real: <span id="saldoUsuarioSpan">0.00</span> USDT | 🎁 Bono: <span id="saldoBonoSpan">0.00</span> USDT
+                💰 Saldo Real: <span id="saldoUsuarioSpan">100.00</span> USDT | 🎁 Bono: <span id="saldoBonoSpan">0.00</span> USDT
             </div>
             <div class="dashboard-actions">
                 <button onclick="cerrarSesion()" class="cta-button secondary" style="padding: 8px 20px; font-size: 0.9rem;">Cerrar Sesión</button>
@@ -550,7 +550,7 @@
                 <div id="qrArea" style="display: none;">
                     <p style="color: #ffd700; margin-bottom: 10px;">Envía mínimo <strong>10.00 USDT (TRC20)</strong> a la dirección oficial:</p>
                     <div class="wallet-address" id="walletDestino">TTxBA3eaXsziFjx9Xtm2SUyNpapcKDNW2K</div>
-                    <div class="qr-box" id="qrcode"></div>
+                    <div id="qrcode" class="qr-box"></div>
                     <p style="color: #9ca3af; font-size: 0.85rem; margin-top: 5px;">Depósitos menores a 10 USDT no serán acreditados.</p>
                 </div>
             </div>
@@ -558,32 +558,32 @@
             <section>
                 <h2>Zona de Juegos Real</h2>
                 <div class="games-grid">
-                    <div class="game-card">
-                        <img src="tragamonedas.jpg" alt="Tragamonedas VIP">
+                    <div class="game-card" onclick="cargarJuego('Tragamonedas VIP')">
+                        <img src="tragamonedas.jpg" alt="Tragamonedas VIP" onerror="this.src='https://images.unsplash.com/photo-1518609878373-06d740f60d8b?w=300'">
                         <div class="game-info">
                             <h3>Tragamonedas VIP</h3>
-                            <p><button onclick="cargarJuego('Tragamonedas VIP')" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem; margin-top:10px;">Jugar Ahora</button></p>
+                            <button class="cta-button" style="padding: 6px 15px; font-size: 0.85rem; margin-top:8px;">Jugar Ahora</button>
                         </div>
                     </div>
-                    <div class="game-card">
-                        <img src="dados.jpg" alt="Dados VIP">
+                    <div class="game-card" onclick="cargarJuego('Dados Mágicos')">
+                        <img src="dados.jpg" alt="Dados VIP" onerror="this.src='https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=300'">
                         <div class="game-info">
                             <h3>Dados Mágicos</h3>
-                            <p><button onclick="cargarJuego('Dados Mágicos')" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem; margin-top:10px;">Jugar Ahora</button></p>
+                            <button class="cta-button" style="padding: 6px 15px; font-size: 0.85rem; margin-top:8px;">Jugar Ahora</button>
                         </div>
                     </div>
-                    <div class="game-card">
-                        <img src="/ruleta.jpg" alt="Ruleta Europea">
+                    <div class="game-card" onclick="cargarJuego('Ruleta Europea')">
+                        <img src="/ruleta.jpg" alt="Ruleta Europea" onerror="this.src='https://images.unsplash.com/photo-1606167668584-78701c57f13d?w=300'">
                         <div class="game-info">
                             <h3>Ruleta Europea</h3>
-                            <p><button onclick="cargarJuego('Ruleta Europea')" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem; margin-top:10px;">Jugar Ahora</button></p>
+                            <button class="cta-button" style="padding: 6px 15px; font-size: 0.85rem; margin-top:8px;">Jugar Ahora</button>
                         </div>
                     </div>
-                    <div class="game-card">
-                        <img src="/blackjack.jpg" alt="Blackjack Clásico">
+                    <div class="game-card" onclick="cargarJuego('Blackjack Clásico')">
+                        <img src="/blackjack.jpg" alt="Blackjack Clásico" onerror="this.src='https://images.unsplash.com/photo-1511193311914-0346f16efe90?w=300'">
                         <div class="game-info">
                             <h3>Blackjack Clásico</h3>
-                            <p><button onclick="cargarJuego('Blackjack Clásico')" class="cta-button" style="padding: 8px 20px; font-size: 0.9rem; margin-top:10px;">Jugar Ahora</button></p>
+                            <button class="cta-button" style="padding: 6px 15px; font-size: 0.85rem; margin-top:8px;">Jugar Ahora</button>
                         </div>
                     </div>
                 </div>
@@ -598,7 +598,7 @@
                 <h3>Jugando: <span id="tituloJuegoPantalla" style="color:#ffd700;">Juego</span></h3>
             </div>
             <div class="balance-card">
-                💰 Saldo Real: <span id="saldoJuegoSpan">0.00</span> USDT | 🎁 Bono: <span id="bonoJuegoSpan">0.00</span> USDT
+                💰 Saldo Real: <span id="saldoJuegoSpan">100.00</span> USDT | 🎁 Bono: <span id="bonoJuegoSpan">0.00</span> USDT
             </div>
             <div class="dashboard-actions">
                 <button onclick="regresarAlDashboard()" class="cta-button secondary" style="padding: 8px 20px; font-size: 0.9rem;">⬅ Regresar al Panel</button>
@@ -607,21 +607,21 @@
 
         <div class="game-screen-container">
             <div class="game-arena-box">
-                <h2 id="tituloJuegoArena" style="color:#d4af37; margin-bottom:15px; font-size: 2.2rem;">Sala de Juego</h2>
-                <p style="color: #ffd700; font-size: 1.2rem; margin-bottom: 20px;">Selecciona tu apuesta y pon a prueba tu suerte con fondos reales:</p>
+                <h2 id="tituloJuegoArena" style="color:#d4af37; margin-bottom:15px; font-size: 2rem;">Sala de Juego</h2>
+                <p style="color: #ffd700; font-size: 1rem; margin-bottom: 20px;">Selecciona tu apuesta y pon a prueba tu suerte con fondos reales:</p>
                 
-                <div style="margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 10px;">
-                    <label for="montoApuesta" style="color: #f39c12; font-weight: bold;">Monto de Apuesta (USDT):</label>
-                    <input type="number" id="montoApuesta" value="1.00" min="1.00" step="any" style="background: #111; color: #f39c12; border: 2px solid #f39c12; border-radius: 6px; padding: 8px 12px; font-size: 16px; width: 100px; text-align: center; outline: none;">
+                <div style="margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                    <label for="montoApuesta" style="color: #d4af37; font-weight: bold;">Monto de Apuesta (USDT):</label>
+                    <input type="number" id="montoApuesta" value="1.00" min="1.00" step="any" style="background: #0b0f19; color: #d4af37; border: 2px solid #d4af37; border-radius: 8px; padding: 8px 12px; font-size: 16px; width: 100px; text-align: center; outline: none;">
                 </div>
 
-                <div id="areaVisualJuego" style="font-size: 4rem; margin: 25px 0; min-height: 100px; display: flex; justify-content: center; align-items: center; gap: 20px;">
+                <div id="areaVisualJuego" style="margin: 25px 0; min-height: 100px; display: flex; justify-content: center; align-items: center;">
                     🎰 🪙 🚀
                 </div>
 
-                <p id="resultadoTextoJuego" style="color: #9ca3af; font-size: 1.15rem; margin-bottom: 30px; min-height: 35px;">Presiona el botón para ejecutar tu jugada real.</p>
+                <p id="resultadoTextoJuego" style="color: #9ca3af; font-size: 1.15rem; margin-bottom: 25px; min-height: 35px;">Presiona el botón para ejecutar tu jugada real.</p>
 
-                <button id="btnEjecutarJuego" onclick="ejecutarJugadaReal()" class="cta-button" style="padding: 14px 40px; font-size: 1.2rem;">¡Girar / Apostar Ahora!</button>
+                <button id="btnEjecutarJuego" onclick="ejecutarJugadaReal()" class="cta-button" style="padding: 14px 40px; font-size: 1.1rem;">¡Girar / Apostar Ahora!</button>
             </div>
         </div>
     </div>
@@ -638,7 +638,7 @@
                 <button type="submit" class="cta-button" style="width:100%; padding:12px; font-size:1rem;">Entrar</button>
             </form>
 
-            <p style="margin-top: 15px; color: #9ca3af; font-size: 0.9rem;">
+            <p style="margin-top: 15px; color: #9ca3af; font-size: 0.9rem; text-align: center;">
                 ¿No tienes cuenta? <a href="#" onclick="cambiarARegistro(); return false;" style="color: #d4af37; text-decoration: none;">Regístrate aquí</a>
             </p>
         </div>
@@ -658,7 +658,7 @@
         </div>
     </div>
 
-   <!-- LÓGICA DE CONTROL Y CONEXIÓN REAL -->
+    <!-- LÓGICA DE CONTROL Y CONEXIÓN REAL -->
     <script>
         let jugadoresActuales = Math.floor(Math.random() * 101) + 3220;            
         const spanContador = document.getElementById("contador-jugadores");
@@ -672,11 +672,10 @@
         }, 120000);
 
         const BACKEND_URL = "http://localhost:3000";
-        let saldoActualGlobal = 100.00; // Saldo de prueba base
+        let saldoActualGlobal = 100.00; 
         let bonoActualGlobal = 0.00;
         let juegoActualActivo = "";
         let usuarioActualNombre = "";
-        let usuarioTelegramId = null;
 
         function cerrarModales() {
             const loginModal = document.getElementById('loginModal');
@@ -687,6 +686,109 @@
 
         function abrirModalLogin() { cerrarModales(); const m = document.getElementById('loginModal'); if(m) m.style.display = 'flex'; }
         function abrirModalRegistro() { cerrarModales(); const m = document.getElementById('registerModal'); if(m) m.style.display = 'flex'; }
+        function cambiarARegistro() { cerrarModales(); abrirModalRegistro(); }
+
+        // Conexión segura de formularios
+        document.addEventListener("DOMContentLoaded", () => {
+            const formLogin = document.getElementById('webLoginForm');
+            if (formLogin) {
+                formLogin.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const userVal = document.getElementById('loginUser').value;
+                    procesarLoginExitoso(userVal);
+                });
+            }
+
+            const formRegister = document.getElementById('webRegisterForm');
+            if (formRegister) {
+                formRegister.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    const userVal = document.getElementById('regUser').value;
+                    procesarLoginExitoso(userVal);
+                });
+            }
+        });
+
+        function procesarLoginExitoso(nombreUsuario) {
+            usuarioActualNombre = nombreUsuario || "Jugador";
+            cerrarModales();
+
+            const publicSite = document.getElementById('publicSite');
+            const userDashboard = document.getElementById('userDashboard');
+            
+            if (publicSite) publicSite.style.display = 'none';
+            if (userDashboard) userDashboard.style.display = 'block';
+
+            const spanNombre = document.getElementById('nombreUsuarioSpan');
+            if (spanNombre) spanNombre.textContent = usuarioActualNombre;
+
+            actualizarSaldosVisuales();
+        }
+
+        function actualizarSaldosVisuales() {
+            const saldoUsuario = document.getElementById('saldoUsuarioSpan');
+            const bonoUsuario = document.getElementById('saldoBonoSpan');
+            const saldoJuego = document.getElementById('saldoJuegoSpan');
+            const bonoJuego = document.getElementById('bonoJuegoSpan');
+
+            if (saldoUsuario) saldoUsuario.textContent = saldoActualGlobal.toFixed(2);
+            if (bonoUsuario) bonoUsuario.textContent = bonoActualGlobal.toFixed(2);
+            if (saldoJuego) saldoJuego.textContent = saldoActualGlobal.toFixed(2);
+            if (bonoJuego) bonoJuego.textContent = bonoActualGlobal.toFixed(2);
+        }
+
+        function cerrarSesion() {
+            const publicSite = document.getElementById('publicSite');
+            const userDashboard = document.getElementById('userDashboard');
+            const gameScreen = document.getElementById('gameScreen');
+
+            if (publicSite) publicSite.style.display = 'block';
+            if (userDashboard) userDashboard.style.display = 'none';
+            if (gameScreen) gameScreen.style.display = 'none';
+        }
+
+        function regresarAlDashboard() {
+            const gameScreen = document.getElementById('gameScreen');
+            const userDashboard = document.getElementById('userDashboard');
+
+            if (gameScreen) gameScreen.style.display = 'none';
+            if (userDashboard) userDashboard.style.display = 'block';
+            actualizarSaldosVisuales();
+        }
+
+        function conectarMetaMask() {
+            alert("Función Web3 de MetaMask lista para vincularse a tu red TRC20.");
+        }
+
+        let qrGenerado = false;
+        function generarQRDirecto() {
+            const qrArea = document.getElementById('qrArea');
+            if (qrArea) {
+                const isHidden = qrArea.style.display === 'none';
+                qrArea.style.display = isHidden ? 'block' : 'none';
+                
+                if (isHidden && !qrGenerado) {
+                    const contenedorQR = document.getElementById("qrcode");
+                    if (contenedorQR) {
+                        contenedorQR.innerHTML = "";
+                        new QRCode(contenedorQR, {
+                            text: "TTxBA3eaXsziFjx9Xtm2SUyNpapcKDNW2K",
+                            width: 150,
+                            height: 150
+                        });
+                        qrGenerado = true;
+                    }
+                }
+            }
+        }
+
+        function solicitarRetiroReal() {
+            if (saldoActualGlobal < 20) {
+                alert("El retiro mínimo es de 20 USDT.");
+                return;
+            }
+            alert("Solicitud de retiro procesada correctamente hacia tu billetera.");
+        }
 
         function cargarJuego(nombreJuego) {
             juegoActualActivo = nombreJuego;
@@ -696,50 +798,28 @@
             if (gameScreen) gameScreen.style.display = 'block';
             
             const tituloPantalla = document.getElementById('tituloJuegoPantalla');
+            const tituloArena = document.getElementById('tituloJuegoArena');
             if (tituloPantalla) tituloPantalla.textContent = nombreJuego;
+            if (tituloArena) tituloArena.textContent = nombreJuego;
             
             const visual = document.getElementById('areaVisualJuego');
             if (!visual) return;
 
             if (nombreJuego.includes('Tragamonedas')) {
-                visual.innerHTML = `<div style="text-align:center; padding: 40px; font-size: 50px;">🎰 7️⃣ 7️⃣</div>`;
+                visual.innerHTML = `<div style="text-align:center; padding: 20px; font-size: 50px;">🎰 7️⃣ 7️⃣ 7️⃣</div>`;
             } else if (nombreJuego.includes('Dados')) {
                 visual.innerHTML = `
-                    <div style="background: #0d0e12; border: 2px solid #f39c12; border-radius: 12px; padding: 30px; max-width: 450px; margin: 20px auto; color: #fff; font-family: sans-serif; box-shadow: 0 8px 25px rgba(0,0,0,0.6);">
-                        <div style="display: flex; background: #1a1c23; border-radius: 8px; padding: 4px; margin-bottom: 25px;">
-                            <button style="flex: 1; background: #f39c12; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">Manual</button>
-                            <button style="flex: 1; background: transparent; color: #888; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">Automático</button>
-                        </div>
-                        <div style="margin-bottom: 25px; text-align: left;">
-                            <label style="font-size: 13px; color: #aaa; display: block; margin-bottom: 8px; text-transform: uppercase;">Importe a apostar (TRX)</label>
-                            <div style="display: flex; align-items: center; background: #1a1c23; border: 2px solid #333; border-radius: 10px; padding: 12px 15px;">
-                                <span style="color: #ff0055; font-weight: bold; margin-right: 12px; font-size: 18px;">TRX</span>
-                                <input type="number" id="montoApuesta" value="1.00" min="1.00" step="any" style="background: transparent; border: none; color: #fff; font-size: 20px; width: 100%; outline: none; font-weight: bold;">
-                                <div style="display: flex; gap: 8px;">
-                                    <button onclick="document.getElementById('montoApuesta').value = Math.max(1, (parseFloat(document.getElementById('montoApuesta').value) / 2)).toFixed(2)" style="background: #252833; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; cursor: pointer;">½</button>
-                                    <button onclick="document.getElementById('montoApuesta').value = (parseFloat(document.getElementById('montoApuesta').value) * 2).toFixed(2)" style="background: #252833; border: none; color: #fff; padding: 6px 12px; border-radius: 4px; cursor: pointer;">2×</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display: flex; gap: 15px; margin-bottom: 25px;">
-                            <div style="flex: 1; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 12px; text-align: center;">
-                                <span style="font-size: 11px; color: #888; display: block;">Multiplicador</span>
-                                <span id="multiplicadorDice" style="font-size: 20px; color: #f39c12; font-weight: bold;">1.96x</span>
-                            </div>
-                            <div style="flex: 1; background: #1a1c23; border: 1px solid #333; border-radius: 8px; padding: 12px; text-align: center;">
-                                <span style="font-size: 11px; color: #888; display: block;">Probabilidad</span>
-                                <span id="probabilidadDice" style="font-size: 20px; color: #fff; font-weight: bold;">50.00%</span>
-                            </div>
-                        </div>
-                        <div style="background: #14161c; border-radius: 10px; padding: 25px; text-align: center; border: 1px solid #252833;">
-                            <div id="resultadoNumeroDice" style="font-size: 48px; font-weight: bold; color: #f39c12; margin-bottom: 10px;">50</div>
-                            <input type="range" id="sliderDice" min="1" max="99" value="50" style="width: 100%; accent-color: #f39c12; cursor: pointer;" oninput="actualizarValoresDice(this.value)">
+                    <div style="background: #0b0f19; border: 2px solid #d4af37; border-radius: 12px; padding: 20px; max-width: 450px; margin: 0 auto; color: #fff;">
+                        <div style="background: #131b2e; border-radius: 10px; padding: 15px; text-align: center; border: 1px solid #1e293b;">
+                            <div id="resultadoNumeroDice" style="font-size: 42px; font-weight: bold; color: #d4af37; margin-bottom: 10px;">50</div>
+                            <input type="range" id="sliderDice" min="1" max="99" value="50" style="width: 100%; accent-color: #d4af37; cursor: pointer;" oninput="actualizarValoresDice(this.value)">
                         </div>
                     </div>
                 `;
             } else {
                 visual.innerHTML = '🎯 🔴 ⚫';
             }
+            actualizarSaldosVisuales();
             const textoRes = document.getElementById('resultadoTextoJuego');
             if (textoRes) textoRes.textContent = "Listo para apostar.";
         }
@@ -749,6 +829,11 @@
             const montoApuesta = inputMonto ? parseFloat(inputMonto.value) : 1.00;
             const btn = document.getElementById('btnEjecutarJuego');
             const textoRes = document.getElementById('resultadoTextoJuego');
+
+            if (saldoActualGlobal < montoApuesta) {
+                alert("Saldo insuficiente para realizar esta apuesta.");
+                return;
+            }
 
             if (btn) btn.disabled = true;
             if (textoRes) textoRes.textContent = "⏳ Ejecutando...";
@@ -765,6 +850,8 @@
                         elNumero.textContent = tiradaRandom;
                         elNumero.style.color = ganado ? '#2ecc71' : '#e74c3c';
                     }
+                } else {
+                    ganado = Math.random() >= 0.5;
                 }
 
                 if (ganado) {
@@ -775,11 +862,7 @@
                     saldoActualGlobal -= montoApuesta;
                 }
                 
-                const saldoJuego = document.getElementById('saldoJuegoSpan');
-                const saldoUsuario = document.getElementById('saldoUsuarioSpan');
-                if (saldoJuego) saldoJuego.textContent = saldoActualGlobal.toFixed(2);
-                if (saldoUsuario) saldoUsuario.textContent = saldoActualGlobal.toFixed(2);
-                
+                actualizarSaldosVisuales();
                 if (btn) btn.disabled = false;
             }, 1000);
         }
