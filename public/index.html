@@ -658,41 +658,48 @@
         </div>
     </div>
 
-    <!-- LÓGICA DE CONTROL Y CONEXIÓN REAL -->
+   <!-- LÓGICA DE CONTROL Y CONEXIÓN REAL -->
     <script>
         let jugadoresActuales = Math.floor(Math.random() * 101) + 3220;            
         const spanContador = document.getElementById("contador-jugadores");
-        spanContador.textContent = jugadoresActuales.toLocaleString();
+        if (spanContador) spanContador.textContent = jugadoresActuales.toLocaleString();
 
         setInterval(function() {        
             let variacion = Math.floor(Math.random() * 28) - 12;                
             jugadoresActuales += variacion;                         
             if (jugadoresActuales < 3200) { jugadoresActuales = 3215; }                                       
-            spanContador.textContent = jugadoresActuales.toLocaleString();
+            if (spanContador) spanContador.textContent = jugadoresActuales.toLocaleString();
         }, 120000);
 
         const BACKEND_URL = "http://localhost:3000";
-        let saldoActualGlobal = 0.00;
+        let saldoActualGlobal = 100.00; // Saldo de prueba base
         let bonoActualGlobal = 0.00;
         let juegoActualActivo = "";
         let usuarioActualNombre = "";
         let usuarioTelegramId = null;
 
         function cerrarModales() {
-            document.getElementById('loginModal').style.display = 'none';
-            document.getElementById('registerModal').style.display = 'none';
+            const loginModal = document.getElementById('loginModal');
+            const registerModal = document.getElementById('registerModal');
+            if (loginModal) loginModal.style.display = 'none';
+            if (registerModal) registerModal.style.display = 'none';
         }
 
-        function abrirModalLogin() { cerrarModales(); document.getElementById('loginModal').style.display = 'flex'; }
-        function abrirModalRegistro() { cerrarModales(); document.getElementById('registerModal').style.display = 'flex'; }
+        function abrirModalLogin() { cerrarModales(); const m = document.getElementById('loginModal'); if(m) m.style.display = 'flex'; }
+        function abrirModalRegistro() { cerrarModales(); const m = document.getElementById('registerModal'); if(m) m.style.display = 'flex'; }
 
         function cargarJuego(nombreJuego) {
             juegoActualActivo = nombreJuego;
-            document.getElementById('userDashboard').style.display = 'none';
-            document.getElementById('gameScreen').style.display = 'block';
-            document.getElementById('tituloJuegoPantalla').textContent = nombreJuego;
+            const dashboard = document.getElementById('userDashboard');
+            const gameScreen = document.getElementById('gameScreen');
+            if (dashboard) dashboard.style.display = 'none';
+            if (gameScreen) gameScreen.style.display = 'block';
+            
+            const tituloPantalla = document.getElementById('tituloJuegoPantalla');
+            if (tituloPantalla) tituloPantalla.textContent = nombreJuego;
             
             const visual = document.getElementById('areaVisualJuego');
+            if (!visual) return;
 
             if (nombreJuego.includes('Tragamonedas')) {
                 visual.innerHTML = `<div style="text-align:center; padding: 40px; font-size: 50px;">🎰 7️⃣ 7️⃣</div>`;
@@ -733,46 +740,57 @@
             } else {
                 visual.innerHTML = '🎯 🔴 ⚫';
             }
-            document.getElementById('resultadoTextoJuego').textContent = "Listo para apostar.";
+            const textoRes = document.getElementById('resultadoTextoJuego');
+            if (textoRes) textoRes.textContent = "Listo para apostar.";
         }
 
         async function ejecutarJugadaReal() {
-            const montoApuesta = parseFloat(document.getElementById('montoApuesta').value);
+            const inputMonto = document.getElementById('montoApuesta');
+            const montoApuesta = inputMonto ? parseFloat(inputMonto.value) : 1.00;
             const btn = document.getElementById('btnEjecutarJuego');
             const textoRes = document.getElementById('resultadoTextoJuego');
 
-            btn.disabled = true;
-            textoRes.textContent = "⏳ Ejecutando...";
+            if (btn) btn.disabled = true;
+            if (textoRes) textoRes.textContent = "⏳ Ejecutando...";
 
             setTimeout(async () => {
                 let ganado = false;
                 if (juegoActualActivo.includes('Dados')) {
-                    const sliderVal = parseInt(document.getElementById('sliderDice').value);
+                    const slider = document.getElementById('sliderDice');
+                    const sliderVal = slider ? parseInt(slider.value) : 50;
                     const tiradaRandom = Math.floor(Math.random() * 100) + 1;
                     ganado = tiradaRandom < sliderVal;
                     const elNumero = document.getElementById('resultadoNumeroDice');
-                    elNumero.textContent = tiradaRandom;
-                    elNumero.style.color = ganado ? '#2ecc71' : '#e74c3c';
+                    if (elNumero) {
+                        elNumero.textContent = tiradaRandom;
+                        elNumero.style.color = ganado ? '#2ecc71' : '#e74c3c';
+                    }
                 }
 
                 if (ganado) {
-                    textoRes.innerHTML = `🎉 ¡Ganaste!`;
+                    if (textoRes) textoRes.innerHTML = `🎉 ¡Ganaste!`;
                     saldoActualGlobal += montoApuesta;
                 } else {
-                    textoRes.innerHTML = `❌ Perdiste.`;
+                    if (textoRes) textoRes.innerHTML = `❌ Perdiste.`;
                     saldoActualGlobal -= montoApuesta;
                 }
                 
-                document.getElementById('saldoJuegoSpan').textContent = saldoActualGlobal.toFixed(2);
-                document.getElementById('saldoUsuarioSpan').textContent = saldoActualGlobal.toFixed(2);
-                btn.disabled = false;
+                const saldoJuego = document.getElementById('saldoJuegoSpan');
+                const saldoUsuario = document.getElementById('saldoUsuarioSpan');
+                if (saldoJuego) saldoJuego.textContent = saldoActualGlobal.toFixed(2);
+                if (saldoUsuario) saldoUsuario.textContent = saldoActualGlobal.toFixed(2);
+                
+                if (btn) btn.disabled = false;
             }, 1000);
         }
 
         function actualizarValoresDice(val) {
-            document.getElementById('resultadoNumeroDice').textContent = val;
-            document.getElementById('probabilidadDice').textContent = val + "%";
-            document.getElementById('multiplicadorDice').textContent = (99 / val).toFixed(2) + "x";
+            const resNum = document.getElementById('resultadoNumeroDice');
+            const prob = document.getElementById('probabilidadDice');
+            const mult = document.getElementById('multiplicadorDice');
+            if (resNum) resNum.textContent = val;
+            if (prob) prob.textContent = val + "%";
+            if (mult) mult.textContent = (99 / val).toFixed(2) + "x";
         }
     </script>
 </body>
