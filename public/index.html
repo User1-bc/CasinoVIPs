@@ -529,7 +529,7 @@
                 <h3>Bienvenido, <span id="nombreUsuarioSpan">Jugador</span></h3>
             </div>
             <div class="balance-card">
-                💰 Saldo Real: <span id="saldoUsuarioSpan">100.00</span> USDT | 🎁 Bono: <span id="saldoBonoSpan">0.00</span> USDT
+                💰 Saldo Real: <span id="saldoUsuarioSpan">0.00</span> USDT | 🎁 Bono: <span id="saldoBonoSpan">0.00</span> USDT
             </div>
             <div class="dashboard-actions">
                 <button onclick="cerrarSesion()" class="cta-button secondary" style="padding: 8px 20px; font-size: 0.9rem;">Cerrar Sesión</button>
@@ -598,7 +598,7 @@
                 <h3>Jugando: <span id="tituloJuegoPantalla" style="color:#ffd700;">Juego</span></h3>
             </div>
             <div class="balance-card">
-                💰 Saldo Real: <span id="saldoJuegoSpan">100.00</span> USDT | 🎁 Bono: <span id="bonoJuegoSpan">0.00</span> USDT
+                💰 Saldo Real: <span id="saldoJuegoSpan">0.00</span> USDT | 🎁 Bono: <span id="bonoJuegoSpan">0.00</span> USDT
             </div>
             <div class="dashboard-actions">
                 <button onclick="regresarAlDashboard()" class="cta-button secondary" style="padding: 8px 20px; font-size: 0.9rem;">⬅ Regresar al Panel</button>
@@ -608,20 +608,12 @@
         <div class="game-screen-container">
             <div class="game-arena-box">
                 <h2 id="tituloJuegoArena" style="color:#d4af37; margin-bottom:15px; font-size: 2rem;">Sala de Juego</h2>
-                <p style="color: #ffd700; font-size: 1rem; margin-bottom: 20px;">Selecciona tu apuesta y pon a prueba tu suerte con fondos reales:</p>
                 
-                <div style="margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
-                    <label for="montoApuesta" style="color: #d4af37; font-weight: bold;">Monto de Apuesta (USDT):</label>
-                    <input type="number" id="montoApuesta" value="1.00" min="1.00" step="any" style="background: #0b0f19; color: #d4af37; border: 2px solid #d4af37; border-radius: 8px; padding: 8px 12px; font-size: 16px; width: 100px; text-align: center; outline: none;">
+                <div id="areaVisualJuego" style="margin: 25px 0;">
+                    <!-- Contenido dinámico según el juego -->
                 </div>
 
-                <div id="areaVisualJuego" style="margin: 25px 0; min-height: 100px; display: flex; justify-content: center; align-items: center;">
-                    🎰 🪙 🚀
-                </div>
-
-                <p id="resultadoTextoJuego" style="color: #9ca3af; font-size: 1.15rem; margin-bottom: 25px; min-height: 35px;">Presiona el botón para ejecutar tu jugada real.</p>
-
-                <button id="btnEjecutarJuego" onclick="ejecutarJugadaReal()" class="cta-button" style="padding: 14px 40px; font-size: 1.1rem;">¡Girar / Apostar Ahora!</button>
+                <p id="resultadoTextoJuego" style="color: #9ca3af; font-size: 1.15rem; margin-bottom: 25px; min-height: 35px;">Configura tu apuesta y pon a prueba tu suerte.</p>
             </div>
         </div>
     </div>
@@ -671,11 +663,16 @@
             if (spanContador) spanContador.textContent = jugadoresActuales.toLocaleString();
         }, 120000);
 
-        const BACKEND_URL = "http://localhost:3000";
-        let saldoActualGlobal = 100.00; 
+        let saldoActualGlobal = 0.00; // Saldo inicial ajustado a 0.00 para nuevos usuarios
         let bonoActualGlobal = 0.00;
         let juegoActualActivo = "";
         let usuarioActualNombre = "";
+
+        // Variables específicas para el juego de dados estilo Qzino
+        let tipoLanzamiento = "debajo"; // "debajo" o "encima"
+        let valorSliderDice = 50;
+        let multiplicadorDice = 1.98;
+        let probabilidadDice = 50;
 
         function cerrarModales() {
             const loginModal = document.getElementById('loginModal');
@@ -688,7 +685,6 @@
         function abrirModalRegistro() { cerrarModales(); const m = document.getElementById('registerModal'); if(m) m.style.display = 'flex'; }
         function cambiarARegistro() { cerrarModales(); abrirModalRegistro(); }
 
-        // Conexión segura de formularios
         document.addEventListener("DOMContentLoaded", () => {
             const formLogin = document.getElementById('webLoginForm');
             if (formLogin) {
@@ -805,75 +801,251 @@
             const visual = document.getElementById('areaVisualJuego');
             if (!visual) return;
 
-            if (nombreJuego.includes('Tragamonedas')) {
-                visual.innerHTML = `<div style="text-align:center; padding: 20px; font-size: 50px;">🎰 7️⃣ 7️⃣ 7️⃣</div>`;
-            } else if (nombreJuego.includes('Dados')) {
+            if (nombreJuego.includes('Dados')) {
+                // Interfaz idéntica al diseño de Qzino proporcionado en la imagen
                 visual.innerHTML = `
-                    <div style="background: #0b0f19; border: 2px solid #d4af37; border-radius: 12px; padding: 20px; max-width: 450px; margin: 0 auto; color: #fff;">
-                        <div style="background: #131b2e; border-radius: 10px; padding: 15px; text-align: center; border: 1px solid #1e293b;">
-                            <div id="resultadoNumeroDice" style="font-size: 42px; font-weight: bold; color: #d4af37; margin-bottom: 10px;">50</div>
-                            <input type="range" id="sliderDice" min="1" max="99" value="50" style="width: 100%; accent-color: #d4af37; cursor: pointer;" oninput="actualizarValoresDice(this.value)">
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: flex-start; text-align: left;">
+                        <!-- Panel de controles izquierdo -->
+                        <div style="background: #07090f; border: 1px solid #1e293b; border-radius: 12px; padding: 20px; width: 320px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <label style="color: #9ca3af; font-size: 0.9rem;">Importe</label>
+                                <span style="color: #9ca3af; font-size: 0.9rem;" id="importeMonedaLabel">0,00 US$</span>
+                            </div>
+                            <div style="display: flex; align-items: center; background: #131b2e; border: 1px solid #1e293b; border-radius: 8px; padding: 8px; margin-bottom: 12px;">
+                                <span style="color: #22c55e; margin-right: 8px; font-weight: bold;">T</span>
+                                <input type="number" id="inputImporteDice" value="1.00" min="0.1" step="any" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; width: 100%; outline: none;" oninput="recalcularValoresDice()">
+                                <div style="display: flex; gap: 4px;">
+                                    <button onclick="multiplicarImporte(0.5)" style="background: #1e293b; border: none; color: #fff; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">/2</button>
+                                    <button onclick="multiplicarImporte(2)" style="background: #1e293b; border: none; color: #fff; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">x2</button>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 6px; margin-bottom: 20px;">
+                                <button onclick="setImporteFijo(1)" style="flex:1; background:#131b2e; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; cursor:pointer;">1</button>
+                                <button onclick="setImporteFijo(10)" style="flex:1; background:#131b2e; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; cursor:pointer;">10</button>
+                                <button onclick="setImporteFijo(100)" style="flex:1; background:#131b2e; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; cursor:pointer;">100</button>
+                                <button onclick="setImporteFijo(1000)" style="flex:1; background:#131b2e; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; cursor:pointer;">1K</button>
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                                <div style="flex:1;">
+                                    <label style="color: #9ca3af; font-size: 0.8rem; display: block; margin-bottom: 4px;">Multiplicador, x</label>
+                                    <input type="text" id="inputMultiplicadorDice" value="1.98" readonly style="width: 100%; background: #131b2e; border: 1px solid #1e293b; color: #fff; padding: 10px; border-radius: 6px; text-align: center;">
+                                </div>
+                                <div style="flex:1;">
+                                    <label style="color: #9ca3af; font-size: 0.8rem; display: block; margin-bottom: 4px;">Probabilidad de ganar, %</label>
+                                    <input type="number" id="inputProbabilidadDice" value="50" min="1" max="98" style="width: 100%; background: #131b2e; border: 1px solid #1e293b; color: #fff; padding: 10px; border-radius: 6px; text-align: center;" oninput="cambiarProbabilidadDesdeInput(this.value)">
+                                </div>
+                            </div>
+
+                            <button onclick="ejecutarJugadaReal()" id="btnEjecutarJuego" style="width: 100%; background: #22c55e; color: #0b0f19; border: none; padding: 14px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase;">Apostar</button>
+                            <div style="text-align: center; margin-top: 10px; color: #9ca3af; font-size: 0.85rem;">
+                                Ganancia por victoria <span id="labelGananciaPotencial" style="color: #22c55e; font-weight: bold;">1.98 US$</span>
+                            </div>
+                        </div>
+
+                        <!-- Pantalla interactiva derecha de dados estilo Qzino -->
+                        <div style="flex: 1; background: #07090f; border: 1px solid #1e293b; border-radius: 12px; padding: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 320px;">
+                            <div style="display: flex; background: #131b2e; border-radius: 8px; padding: 4px; margin-bottom: 30px; gap: 4px;">
+                                <button id="btnDebajo" onclick="cambiarModoTirada('debajo')" style="background: #22c55e; border: none; color: #0b0f19; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Lanzar por debajo de</button>
+                                <button id="btnEncima" onclick="cambiarModoTirada('encima')" style="background: transparent; border: none; color: #9ca3af; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Lanzar por encima de</button>
+                            </div>
+
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 40px; width: 100%; margin-bottom: 30px;">
+                                <div style="text-align: center;">
+                                    <div id="resultadoNumeroDice" style="font-size: 3.5rem; font-weight: bold; color: #fff;">50</div>
+                                    <div id="labelModoTexto" style="color: #9ca3af; font-size: 0.85rem;">Lanzar por debajo de</div>
+                                </div>
+                                <div style="font-size: 3.5rem;">🎲</div>
+                                <div style="text-align: center;">
+                                    <div id="resultadoTiradaFinal" style="font-size: 3.5rem; font-weight: bold; color: #22c55e;">00</div>
+                                    <div style="color: #9ca3af; font-size: 0.85rem;">Número de la suerte</div>
+                                </div>
+                            </div>
+
+                            <!-- Barra deslizadora (Slider) -->
+                            <div style="width: 100%; max-width: 450px; position: relative; margin: 20px 0 10px 0;">
+                                <input type="range" id="sliderDice" min="2" max="98" value="50" style="width: 100%; accent-color: #22c55e; cursor: pointer;" oninput="actualizarValoresSlider(this.value)">
+                                <div style="display: flex; justify-content: space-between; color: #6b7280; font-size: 0.75rem; margin-top: 5px;">
+                                    <span>0</span>
+                                    <span>25</span>
+                                    <span>50</span>
+                                    <span>75</span>
+                                    <span>99</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 `;
+                recalcularValoresDice();
+            } else if (nombreJuego.includes('Tragamonedas')) {
+                visual.innerHTML = `
+                    <div style="text-align:center; padding: 20px; font-size: 50px;">🎰 7️⃣ 7️⃣ 7️⃣</div>
+                    <div style="margin: 15px 0;">
+                        <label style="color: #d4af37; font-weight: bold;">Apuesta (USDT):</label>
+                        <input type="number" id="montoApuesta" value="1.00" min="1.00" step="any" style="background: #0b0f19; color: #d4af37; border: 2px solid #d4af37; border-radius: 8px; padding: 8px; width: 100px; text-align: center; margin-left: 10px;">
+                    </div>
+                    <button onclick="ejecutarJugadaReal()" id="btnEjecutarJuego" class="cta-button" style="padding: 12px 30px;">¡Girar Tragamonedas!</button>
+                `;
             } else {
-                visual.innerHTML = '🎯 🔴 ⚫';
+                visual.innerHTML = `
+                    <div style="font-size: 40px; margin-bottom: 15px;">🎯 🔴 ⚫</div>
+                    <div style="margin: 15px 0;">
+                        <label style="color: #d4af37; font-weight: bold;">Apuesta (USDT):</label>
+                        <input type="number" id="montoApuesta" value="1.00" min="1.00" step="any" style="background: #0b0f19; color: #d4af37; border: 2px solid #d4af37; border-radius: 8px; padding: 8px; width: 100px; text-align: center; margin-left: 10px;">
+                    </div>
+                    <button onclick="ejecutarJugadaReal()" id="btnEjecutarJuego" class="cta-button" style="padding: 12px 30px;">¡Apostar Ahora!</button>
+                `;
             }
             actualizarSaldosVisuales();
             const textoRes = document.getElementById('resultadoTextoJuego');
             if (textoRes) textoRes.textContent = "Listo para apostar.";
         }
 
+        // Funciones auxiliares para el juego de dados estilo Qzino
+        function setImporteFijo(valor) {
+            const input = document.getElementById('inputImporteDice');
+            if (input) {
+                input.value = valor.toFixed(2);
+                recalcularValoresDice();
+            }
+        }
+
+        function multiplicarImporte(factor) {
+            const input = document.getElementById('inputImporteDice');
+            if (input) {
+                let val = parseFloat(input.value) || 1.00;
+                val = Math.max(0.1, val * factor);
+                input.value = val.toFixed(2);
+                recalcularValoresDice();
+            }
+        }
+
+        function cambiarModoTirada(modo) {
+            tipoLanzamiento = modo;
+            const btnDebajo = document.getElementById('btnDebajo');
+            const btnEncima = document.getElementById('btnEncima');
+            const labelModo = document.getElementById('labelModoTexto');
+
+            if (modo === 'debajo') {
+                if (btnDebajo) { btnDebajo.style.background = '#22c55e'; btnDebajo.style.color = '#0b0f19'; }
+                if (btnEncima) { btnEncima.style.background = 'transparent'; btnEncima.style.color = '#9ca3af'; }
+                if (labelModo) labelModo.textContent = "Lanzar por debajo de";
+            } else {
+                if (btnEncima) { btnEncima.style.background = '#22c55e'; btnEncima.style.color = '#0b0f19'; }
+                if (btnDebajo) { btnDebajo.style.background = 'transparent'; btnDebajo.style.color = '#9ca3af'; }
+                if (labelModo) labelModo.textContent = "Lanzar por encima de";
+            }
+            recalcularValoresDice();
+        }
+
+        function actualizarValoresSlider(val) {
+            valorSliderDice = parseInt(val);
+            const resNum = document.getElementById('resultadoNumeroDice');
+            const inputProb = document.getElementById('inputProbabilidadDice');
+            
+            if (resNum) resNum.textContent = valorSliderDice;
+            if (inputProb) inputProb.value = tipoLanzamiento === 'debajo' ? valorSliderDice : (99 - valorSliderDice);
+            
+            recalcularValoresDice();
+        }
+
+        function cambiarProbabilidadDesdeInput(val) {
+            let prob = parseInt(val) || 50;
+            prob = Math.max(1, Math.min(98, prob));
+            probabilidadDice = prob;
+            
+            if (tipoLanzamiento === 'debajo') {
+                valorSliderDice = prob;
+            } else {
+                valorSliderDice = 99 - prob;
+            }
+            
+            const slider = document.getElementById('sliderDice');
+            const resNum = document.getElementById('resultadoNumeroDice');
+            if (slider) slider.value = valorSliderDice;
+            if (resNum) resNum.textContent = valorSliderDice;
+
+            recalcularValoresDice();
+        }
+
+        function recalcularValoresDice() {
+            let prob = tipoLanzamiento === 'debajo' ? valorSliderDice : (99 - valorSliderDice);
+            probabilidadDice = Math.max(1, Math.min(98, prob));
+            
+            // Fórmula estándar de casino para multiplicador con margen de la casa (99%)
+            multiplicadorDice = 0.99 / (probabilidadDice / 100);
+
+            const inputMult = document.getElementById('inputMultiplicadorDice');
+            const inputProb = document.getElementById('inputProbabilidadDice');
+            const labelGanancia = document.getElementById('labelGananciaPotencial');
+            const inputImporte = document.getElementById('inputImporteDice');
+            const labelMoneda = document.getElementById('importeMonedaLabel');
+
+            if (inputMult) inputMult.value = multiplicadorDice.toFixed(2);
+            if (inputProb && document.activeElement !== inputProb) inputProb.value = probabilidadDice;
+            
+            let importeVal = inputImporte ? parseFloat(inputImporte.value) || 1.00 : 1.00;
+            let gananciaTotal = importeVal * multiplicadorDice;
+            
+            if (labelGanancia) labelGanancia.textContent = gananciaTotal.toFixed(2) + " US$";
+            if (labelMoneda) labelMoneda.textContent = importeVal.toFixed(2) + " US$";
+        }
+
         async function ejecutarJugadaReal() {
-            const inputMonto = document.getElementById('montoApuesta');
-            const montoApuesta = inputMonto ? parseFloat(inputMonto.value) : 1.00;
+            let montoApuesta = 1.00;
+            const inputImporteDice = document.getElementById('inputImporteDice');
+            const inputTragamonedas = document.getElementById('montoApuesta');
+
+            if (juegoActualActivo.includes('Dados') && inputImporteDice) {
+                montoApuesta = parseFloat(inputImporteDice.value) || 1.00;
+            } else if (inputTragamonedas) {
+                montoApuesta = parseFloat(inputTragamonedas.value) || 1.00;
+            }
+
             const btn = document.getElementById('btnEjecutarJuego');
             const textoRes = document.getElementById('resultadoTextoJuego');
 
             if (saldoActualGlobal < montoApuesta) {
-                alert("Saldo insuficiente para realizar esta apuesta.");
+                alert("Saldo insuficiente. Realiza un depósito para comenzar a apostar con fondos reales.");
                 return;
             }
 
             if (btn) btn.disabled = true;
-            if (textoRes) textoRes.textContent = "⏳ Ejecutando...";
+            if (textoRes) textoRes.textContent = "⏳ Ejecutando jugada...";
 
             setTimeout(async () => {
                 let ganado = false;
+
                 if (juegoActualActivo.includes('Dados')) {
-                    const slider = document.getElementById('sliderDice');
-                    const sliderVal = slider ? parseInt(slider.value) : 50;
-                    const tiradaRandom = Math.floor(Math.random() * 100) + 1;
-                    ganado = tiradaRandom < sliderVal;
-                    const elNumero = document.getElementById('resultadoNumeroDice');
-                    if (elNumero) {
-                        elNumero.textContent = tiradaRandom;
-                        elNumero.style.color = ganado ? '#2ecc71' : '#e74c3c';
+                    const tiradaRandom = Math.floor(Math.random() * 99) + 1; // 1 a 99
+                    const elTiradaFinal = document.getElementById('resultadoTiradaFinal');
+                    if (elTiradaFinal) elTiradaFinal.textContent = tiradaRandom < 10 ? "0" + tiradaRandom : tiradaRandom;
+
+                    if (tipoLanzamiento === 'debajo') {
+                        ganado = tiradaRandom < valorSliderDice;
+                    } else {
+                        ganado = tiradaRandom > valorSliderDice;
+                    }
+
+                    if (elTiradaFinal) {
+                        elTiradaFinal.style.color = ganado ? '#22c55e' : '#ef4444';
                     }
                 } else {
                     ganado = Math.random() >= 0.5;
                 }
 
                 if (ganado) {
-                    if (textoRes) textoRes.innerHTML = `🎉 ¡Ganaste!`;
-                    saldoActualGlobal += montoApuesta;
+                    let premio = juegoActualActivo.includes('Dados') ? (montoApuesta * multiplicadorDice) : (montoApuesta * 2);
+                    if (textoRes) textoRes.innerHTML = `🎉 ¡Ganaste <span style="color:#22c55e;">+${(premio - montoApuesta).toFixed(2)} USDT</span>!`;
+                    saldoActualGlobal += (premio - montoApuesta);
                 } else {
-                    if (textoRes) textoRes.innerHTML = `❌ Perdiste.`;
+                    if (textoRes) textoRes.innerHTML = `❌ Perdiste <span style="color:#ef4444;">-${montoApuesta.toFixed(2)} USDT</span>.`;
                     saldoActualGlobal -= montoApuesta;
                 }
                 
                 actualizarSaldosVisuales();
                 if (btn) btn.disabled = false;
-            }, 1000);
-        }
-
-        function actualizarValoresDice(val) {
-            const resNum = document.getElementById('resultadoNumeroDice');
-            const prob = document.getElementById('probabilidadDice');
-            const mult = document.getElementById('multiplicadorDice');
-            if (resNum) resNum.textContent = val;
-            if (prob) prob.textContent = val + "%";
-            if (mult) mult.textContent = (99 / val).toFixed(2) + "x";
+            }, 800);
         }
     </script>
 </body>
