@@ -993,7 +993,7 @@
             if (resNum) resNum.textContent = valorSliderDice;
             if (inputProb) inputProb.value = tipoLanzamiento === 'debajo' ? valorSliderDice : (99 - valorSliderDice);
             
-            recalcularValoresSlider();
+            recalcularValoresDice();
         }
 
         function cambiarProbabilidadDesdeInput(val) {
@@ -1105,9 +1105,9 @@
             }, 800);
         }
 
-        // --- MÓDULO DE RULETA ACTUALIZADO ---
-        let fichaSeleccionadaRuleta = 1; // Ficha inicial por defecto
-        let apuestaActualRuleta = { tipo: null, valor: null };
+        // --- MÓDULO DE RULETA MULTI-APUESTA INTELIGENTE ---
+        let fichaSeleccionadaRuleta = 1; 
+        let listaApuestasRuleta = []; // Array que almacena todas las apuestas simultáneas del usuario
 
         function abrirJuegoRuleta() {
             const dashboard = document.getElementById('userDashboard');
@@ -1124,29 +1124,29 @@
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                         <button onclick="regresarAlDashboard()" style="background: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">⬅ Menú</button>
                         <h2 style="margin: 0; color: #f1c40f;">LUCKY ROULETTE</h2>
-                        <div style="font-size: 14px;">Balance: <span id="rouletteBalance">0.00</span> USDT | Apuesta: <span id="rouletteBet">0</span></div>
+                        <div style="font-size: 14px;">Balance: <span id="rouletteBalance">0.00</span> USDT | Apuesta Total: <span id="rouletteBet">0</span></div>
                     </div>
                     <div class="roulette-board" style="display: inline-block; background: #084c1e; padding: 15px; border: 4px solid #d4af37; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.5);">
                         <div style="display: grid; grid-template-columns: 60px repeat(12, 45px); gap: 3px; margin-bottom: 5px;">
-                            <div onclick="apostarRuleta('num', 0)" style="grid-row: span 3; background: #27ae60; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; cursor: pointer; border: 1px solid #444;">0</div>
-                            <div class="r-cell red" onclick="apostarRuleta('num', 3)">3</div><div class="r-cell black" onclick="apostarRuleta('num', 6)">6</div><div class="r-cell red" onclick="apostarRuleta('num', 9)">9</div><div class="r-cell blue" onclick="apostarRuleta('num', 12)">12</div><div class="r-cell red" onclick="apostarRuleta('num', 15)">15</div><div class="r-cell black" onclick="apostarRuleta('num', 18)">18</div><div class="r-cell red" onclick="apostarRuleta('num', 21)">21</div><div class="r-cell black" onclick="apostarRuleta('num', 24)">24</div><div class="r-cell red" onclick="apostarRuleta('num', 27)">27</div><div class="r-cell blue" onclick="apostarRuleta('num', 30)">30</div><div class="r-cell red" onclick="apostarRuleta('num', 33)">33</div><div class="r-cell black" onclick="apostarRuleta('num', 36)">36</div>
-                            <div class="r-cell black" onclick="apostarRuleta('num', 2)">2</div><div class="r-cell red" onclick="apostarRuleta('num', 5)">5</div><div class="r-cell black" onclick="apostarRuleta('num', 8)">8</div><div class="r-cell black" onclick="apostarRuleta('num', 11)">11</div><div class="r-cell red" onclick="apostarRuleta('num', 14)">14</div><div class="r-cell black" onclick="apostarRuleta('num', 17)">17</div><div class="r-cell black" onclick="apostarRuleta('num', 20)">20</div><div class="r-cell red" onclick="apostarRuleta('num', 23)">23</div><div class="r-cell black" onclick="apostarRuleta('num', 26)">26</div><div class="r-cell black" onclick="apostarRuleta('num', 29)">29</div><div class="r-cell red" onclick="apostarRuleta('num', 32)">32</div><div class="r-cell red" onclick="apostarRuleta('num', 35)">35</div>
-                            <div class="r-cell red" onclick="apostarRuleta('num', 1)">1</div><div class="r-cell black" onclick="apostarRuleta('num', 4)">4</div><div class="r-cell red" onclick="apostarRuleta('num', 7)">7</div><div class="r-cell red" onclick="apostarRuleta('num', 10)">10</div><div class="r-cell black" onclick="apostarRuleta('num', 13)">13</div><div class="r-cell red" onclick="apostarRuleta('num', 16)">16</div><div class="r-cell red" onclick="apostarRuleta('num', 19)">19</div><div class="r-cell black" onclick="apostarRuleta('num', 22)">22</div><div class="r-cell red" onclick="apostarRuleta('num', 25)">25</div><div class="r-cell red" onclick="apostarRuleta('num', 28)">28</div><div class="r-cell black" onclick="apostarRuleta('num', 31)">31</div><div class="r-cell black" onclick="apostarRuleta('num', 34)">34</div>
+                            <div id="casilla-num-0" onclick="apostarRuleta('num', 0)" style="grid-row: span 3; background: #27ae60; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; cursor: pointer; border: 1px solid #444; position:relative;">0</div>
+                            <div id="casilla-num-3" class="r-cell red" onclick="apostarRuleta('num', 3)">3</div><div id="casilla-num-6" class="r-cell black" onclick="apostarRuleta('num', 6)">6</div><div id="casilla-num-9" class="r-cell red" onclick="apostarRuleta('num', 9)">9</div><div id="casilla-num-12" class="r-cell blue" onclick="apostarRuleta('num', 12)">12</div><div id="casilla-num-15" class="r-cell red" onclick="apostarRuleta('num', 15)">15</div><div id="casilla-num-18" class="r-cell black" onclick="apostarRuleta('num', 18)">18</div><div id="casilla-num-21" class="r-cell red" onclick="apostarRuleta('num', 21)">21</div><div id="casilla-num-24" class="r-cell black" onclick="apostarRuleta('num', 24)">24</div><div id="casilla-num-27" class="r-cell red" onclick="apostarRuleta('num', 27)">27</div><div id="casilla-num-30" class="r-cell blue" onclick="apostarRuleta('num', 30)">30</div><div id="casilla-num-33" class="r-cell red" onclick="apostarRuleta('num', 33)">33</div><div id="casilla-num-36" class="r-cell black" onclick="apostarRuleta('num', 36)">36</div>
+                            <div id="casilla-num-2" class="r-cell black" onclick="apostarRuleta('num', 2)">2</div><div id="casilla-num-5" class="r-cell red" onclick="apostarRuleta('num', 5)">5</div><div id="casilla-num-8" class="r-cell black" onclick="apostarRuleta('num', 8)">8</div><div id="casilla-num-11" class="r-cell black" onclick="apostarRuleta('num', 11)">11</div><div id="casilla-num-14" class="r-cell red" onclick="apostarRuleta('num', 14)">14</div><div id="casilla-num-17" class="r-cell black" onclick="apostarRuleta('num', 17)">17</div><div id="casilla-num-20" class="r-cell black" onclick="apostarRuleta('num', 20)">20</div><div id="casilla-num-23" class="r-cell red" onclick="apostarRuleta('num', 23)">23</div><div id="casilla-num-26" class="r-cell black" onclick="apostarRuleta('num', 26)">26</div><div id="casilla-num-29" class="r-cell black" onclick="apostarRuleta('num', 29)">29</div><div id="casilla-num-32" class="r-cell red" onclick="apostarRuleta('num', 32)">32</div><div id="casilla-num-35" class="r-cell red" onclick="apostarRuleta('num', 35)">35</div>
+                            <div id="casilla-num-1" class="r-cell red" onclick="apostarRuleta('num', 1)">1</div><div id="casilla-num-4" class="r-cell black" onclick="apostarRuleta('num', 4)">4</div><div id="casilla-num-7" class="r-cell red" onclick="apostarRuleta('num', 7)">7</div><div id="casilla-num-10" class="r-cell red" onclick="apostarRuleta('num', 10)">10</div><div id="casilla-num-13" class="r-cell black" onclick="apostarRuleta('num', 13)">13</div><div id="casilla-num-16" class="r-cell red" onclick="apostarRuleta('num', 16)">16</div><div id="casilla-num-19" class="r-cell red" onclick="apostarRuleta('num', 19)">19</div><div id="casilla-num-22" class="r-cell black" onclick="apostarRuleta('num', 22)">22</div><div id="casilla-num-25" class="r-cell red" onclick="apostarRuleta('num', 25)">25</div><div id="casilla-num-28" class="r-cell red" onclick="apostarRuleta('num', 28)">28</div><div id="casilla-num-31" class="r-cell black" onclick="apostarRuleta('num', 31)">31</div><div id="casilla-num-34" class="r-cell black" onclick="apostarRuleta('num', 34)">34</div>
                         </div>
                         <div style="display: grid; grid-template-columns: 60px repeat(3, 180px); gap: 3px; margin-top: 5px; font-size: 13px; font-weight: bold;">
                             <div></div>
-                            <div onclick="apostarRuleta('dozens', 1)" class="r-ext">1st 12</div>
-                            <div onclick="apostarRuleta('dozens', 2)" class="r-ext">2nd 12</div>
-                            <div onclick="apostarRuleta('dozens', 3)" class="r-ext">3rd 12</div>
+                            <div id="casilla-dozens-1" onclick="apostarRuleta('dozens', 1)" class="r-ext">1st 12</div>
+                            <div id="casilla-dozens-2" onclick="apostarRuleta('dozens', 2)" class="r-ext">2nd 12</div>
+                            <div id="casilla-dozens-3" onclick="apostarRuleta('dozens', 3)" class="r-ext">3rd 12</div>
                         </div>
                         <div style="display: grid; grid-template-columns: 60px repeat(6, 90px); gap: 3px; margin-top: 5px; font-size: 12px; font-weight: bold;">
                             <div></div>
-                            <div onclick="apostarRuleta('paridad', '1-18')" class="r-ext">1~18</div>
-                            <div onclick="apostarRuleta('paridad', 'EVEN')" class="r-ext">PAR</div>
-                            <div onclick="apostarRuleta('color', 'RED')" class="r-ext" style="background: #b71c1c;">RED</div>
-                            <div onclick="apostarRuleta('color', 'BLACK')" class="r-ext" style="background: #212121;">BLACK</div>
-                            <div onclick="apostarRuleta('paridad', 'ODD')" class="r-ext">IMPAR</div>
-                            <div onclick="apostarRuleta('paridad', '19-36')" class="r-ext">19~36</div>
+                            <div id="casilla-paridad-1-18" onclick="apostarRuleta('paridad', '1-18')" class="r-ext">1~18</div>
+                            <div id="casilla-paridad-EVEN" onclick="apostarRuleta('paridad', 'EVEN')" class="r-ext">PAR</div>
+                            <div id="casilla-color-RED" onclick="apostarRuleta('color', 'RED')" class="r-ext" style="background: #b71c1c;">RED</div>
+                            <div id="casilla-color-BLACK" onclick="apostarRuleta('color', 'BLACK')" class="r-ext" style="background: #212121;">BLACK</div>
+                            <div id="casilla-paridad-ODD" onclick="apostarRuleta('paridad', 'ODD')" class="r-ext">IMPAR</div>
+                            <div id="casilla-paridad-19-36" onclick="apostarRuleta('paridad', '19-36')" class="r-ext">19~36</div>
                         </div>
                     </div>
                     <div style="margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 15px;">
@@ -1168,8 +1168,6 @@
 
         function cambiarFichaRuleta(monto) {
             fichaSeleccionadaRuleta = monto;
-            
-            // Todos los botones vuelven a blanco y sin escala, solo el seleccionado se pone amarillo y con zoom
             [1, 5, 10, 50].forEach(val => {
                 const btn = document.getElementById(`chip-${val}`);
                 if (btn) {
@@ -1182,25 +1180,71 @@
                     }
                 }
             });
-
-            if (apuestaActualRuleta.tipo !== null) {
-                const betSpan = document.getElementById('rouletteBet');
-                if (betSpan) betSpan.textContent = fichaSeleccionadaRuleta;
-            }
         }
 
         function apostarRuleta(tipo, valor) {
-            if (saldoActualGlobal < fichaSeleccionadaRuleta) {
-                alert("No tienes suficiente saldo para esta apuesta.");
+            // Regla de validación: No permitir apuestas opuestas simultáneas (Rojo y Negro / Par e Impar)
+            if (tipo === 'color') {
+                let opuesto = valor === 'RED' ? 'BLACK' : 'RED';
+                if (listaApuestasRuleta.some(a => a.tipo === 'color' && a.valor === opuesto)) {
+                    alert("No puedes apostar a RED y BLACK al mismo tiempo.");
+                    return;
+                }
+            }
+            if (tipo === 'paridad' && (valor === 'EVEN' || valor === 'ODD')) {
+                let opuesto = valor === 'EVEN' ? 'ODD' : 'EVEN';
+                if (listaApuestasRuleta.some(a => a.tipo === 'paridad' && a.valor === opuesto)) {
+                    alert("No puedes apostar a PAR e IMPAR al mismo tiempo.");
+                    return;
+                }
+            }
+
+            let costoTotalActual = listaApuestasRuleta.reduce((sum, a) => sum + a.monto, 0);
+            if (saldoActualGlobal < (costoTotalActual + fichaSeleccionadaRuleta)) {
+                alert("Saldo insuficiente para agregar esta ficha.");
                 return;
             }
-            apuestaActualRuleta = { tipo: tipo, valor: valor };
+
+            // Registrar o incrementar apuesta en esa casilla específica
+            let apuestaExistente = listaApuestasRuleta.find(a => a.tipo === tipo && a.valor === valor);
+            if (apuestaExistente) {
+                apuestaExistente.monto += fichaSeleccionadaRuleta;
+            } else {
+                listaApuestasRuleta.push({ tipo: tipo, valor: valor, monto: fichaSeleccionadaRuleta });
+            }
+
+            actualizarVistaFichasEnTablero();
+        }
+
+        function actualizarVistaFichasEnTablero() {
+            // Limpiar indicadores visuales previos en todas las celdas
+            document.querySelectorAll('.r-cell, .r-ext, [id^="casilla-num-0"]').forEach(el => {
+                let badge = el.querySelector('.ficha-badge');
+                if (badge) badge.remove();
+            });
+
+            let totalApuesta = 0;
+            listaApuestasRuleta.forEach(ap => {
+                totalApuesta += ap.monto;
+                let idCasilla = `casilla-${ap.tipo}-${ap.valor}`;
+                let el = document.getElementById(idCasilla);
+                if (el) {
+                    let badge = document.createElement('div');
+                    badge.className = 'ficha-badge';
+                    badge.textContent = ap.monto;
+                    badge.style.cssText = "position: absolute; bottom: 2px; right: 2px; background: #f1c40f; color: #000; border-radius: 50%; width: 22px; height: 22px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.4);";
+                    el.style.position = 'relative';
+                    el.appendChild(badge);
+                }
+            });
+
             const betSpan = document.getElementById('rouletteBet');
-            if (betSpan) betSpan.textContent = fichaSeleccionadaRuleta;
+            if (betSpan) betSpan.textContent = totalApuesta;
         }
 
         function limpiarApuestaRuleta() {
-            apuestaActualRuleta = { tipo: null, valor: null };
+            listaApuestasRuleta = [];
+            actualizarVistaFichasEnTablero();
             const betSpan = document.getElementById('rouletteBet');
             if (betSpan) betSpan.textContent = "0";
         }
@@ -1211,65 +1255,80 @@
         }
 
         function girarRuleta() {
-            if (apuestaActualRuleta.tipo === null) {
-                alert("Por favor selecciona una casilla o tipo de apuesta en el tablero antes de dar START.");
+            if (listaApuestasRuleta.length === 0) {
+                alert("Por favor coloca al menos una apuesta en el tablero antes de dar START.");
                 return;
             }
 
-            let montoApostado = fichaSeleccionadaRuleta;
-            if (saldoActualGlobal < montoApostado) {
-                alert("Saldo insuficiente.");
+            let montoTotalApostado = listaApuestasRuleta.reduce((sum, a) => sum + a.monto, 0);
+            if (saldoActualGlobal < montoTotalApostado) {
+                alert("Saldo insuficiente para cubrir tus apuestas.");
                 return;
             }
 
-            saldoActualGlobal -= montoApostado;
+            // Descontar saldo total apostado de golpe
+            saldoActualGlobal -= montoTotalApostado;
 
             let numeroGanador = Math.floor(Math.random() * 37);
-            let gano = false;
-            let multiplicador = 0;
+            let premioTotalRonda = 0;
+            let resumenResultados = [];
 
-            if (apuestaActualRuleta.tipo === 'num' && apuestaActualRuleta.valor === numeroGanador) {
-                gano = true;
-                multiplicador = 35;
-            } else if (apuestaActualRuleta.tipo === 'color') {
-                let esRoja = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(numeroGanador);
-                let colorGanador = numeroGanador === 0 ? 'verde' : (esRoja ? 'RED' : 'BLACK');
-                if (apuestaActualRuleta.valor === colorGanador) {
-                    gano = true;
-                    multiplicador = 2;
+            // Evaluar cada apuesta individual hecha por el usuario
+            listaApuestasRuleta.forEach(ap => {
+                let ganoApuesta = false;
+                let multiplicador = 0;
+
+                if (ap.tipo === 'num' && ap.valor === numeroGanador) {
+                    ganoApuesta = true;
+                    multiplicador = 35;
+                } else if (ap.tipo === 'color') {
+                    let esRoja = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(numeroGanador);
+                    let colorGanador = numeroGanador === 0 ? 'verde' : (esRoja ? 'RED' : 'BLACK');
+                    if (ap.valor === colorGanador) {
+                        ganoApuesta = true;
+                        multiplicador = 2;
+                    }
+                } else if (ap.tipo === 'dozens') {
+                    let docenaGanadora = numeroGanador === 0 ? 0 : Math.ceil(numeroGanador / 12);
+                    if (ap.valor === docenaGanadora) {
+                        ganoApuesta = true;
+                        multiplicador = 3;
+                    }
+                } else if (ap.tipo === 'paridad') {
+                    if (ap.valor === 'EVEN' && numeroGanador > 0 && numeroGanador % 2 === 0) { ganoApuesta = true; multiplicador = 2; }
+                    if (ap.valor === 'ODD' && numeroGanador % 2 !== 0) { ganoApuesta = true; multiplicador = 2; }
+                    if (ap.valor === '1-18' && numeroGanador >= 1 && numeroGanador <= 18) { ganoApuesta = true; multiplicador = 2; }
+                    if (ap.valor === '19-36' && numeroGanador >= 19 && numeroGanador <= 36) { ganoApuesta = true; multiplicador = 2; }
                 }
-            } else if (apuestaActualRuleta.tipo === 'dozens') {
-                let docenaGanadora = numeroGanador === 0 ? 0 : Math.ceil(numeroGanador / 12);
-                if (apuestaActualRuleta.valor === docenaGanadora) {
-                    gano = true;
-                    multiplicador = 3;
+
+                if (ganoApuesta) {
+                    let retorno = ap.monto * multiplicador;
+                    premioTotalRonda += retorno;
+                    resumenResultados.push(`✅ Acertaste ${ap.tipo}(${ap.valor}): +${retorno.toFixed(2)} USDT`);
                 }
-            } else if (apuestaActualRuleta.tipo === 'paridad') {
-                if (apuestaActualRuleta.valor === 'EVEN' && numeroGanador > 0 && numeroGanador % 2 === 0) { gano = true; multiplicador = 2; }
-                if (apuestaActualRuleta.valor === 'ODD' && numeroGanador % 2 !== 0) { gano = true; multiplicador = 2; }
-                if (apuestaActualRuleta.valor === '1-18' && numeroGanador >= 1 && numeroGanador <= 18) { gano = true; multiplicador = 2; }
-                if (apuestaActualRuleta.valor === '19-36' && numeroGanador >= 19 && numeroGanador <= 36) { gano = true; multiplicador = 2; }
-            }
+            });
 
-            let premio = 0;
-            if (gano) {
-                premio = montoApostado * multiplicador;
-                saldoActualGlobal += premio;
-            }
-
+            saldoActualGlobal += premioTotalRonda;
             actualizarSaldosRuletaVisual();
             actualizarSaldosVisuales();
 
-            alert(`¡El número ganador fue el ${numeroGanador}! ` + (gano ? `¡Ganaste ${premio.toFixed(2)} USDT!` : "Perdiste esta ronda."));
+            let mensajeFinal = `🎲 ¡El número ganador fue el ${numeroGanador}!\n\n`;
+            if (resumenResultados.length > 0) {
+                mensajeFinal += resumenResultados.join('\n') + `\n\n🎉 ¡Premio total obtenido: ${premioTotalRonda.toFixed(2)} USDT!`;
+            } else {
+                mensajeFinal += "❌ Ninguna de tus apuestas resultó ganadora en esta ronda.";
+            }
+
+            alert(mensajeFinal);
             limpiarApuestaRuleta();
         }
     </script>
     <style>
-        .r-cell { background: #111; border: 1px solid #444; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .r-cell { background: #111; border: 1px solid #444; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; font-weight: bold; position: relative; }
         .r-cell.red { background: #b71c1c; }
         .r-cell.black { background: #212121; }
         .r-cell.blue { background: #0d47a1; }
-        .r-ext { background: #1b5e20; border: 1px solid #2e7d32; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; color: white; }
+        .r-ext { background: #1b5e20; border: 1px solid #2e7d32; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; color: white; position: relative; }
         .chip-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffffff; background: #27ae60; color: white; font-weight: bold; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease; }
     </style>
 </body>
