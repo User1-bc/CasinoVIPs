@@ -848,6 +848,11 @@
                 return;
             }
 
+            if (nombreJuego.includes('Blackjack') || nombreJuego.toLowerCase().includes('blackjack')) {
+                abrirJuegoBlackjack();
+                return;
+            }
+
             juegoActualActivo = nombreJuego;
             const dashboard = document.getElementById('userDashboard');
             const gameScreen = document.getElementById('gameScreen');
@@ -1322,6 +1327,302 @@
             alert(mensajeFinal);
             limpiarApuestaRuleta();
         }
+        // MODULO INDEPENDIENTE DE BLACKJACK (MÁX. 3 MANOS, HASTA 1000 USDT)
+        function abrirJuegoBlackjack() {
+            // Ocultar paneles actuales sin borrar contenido base
+            const dashboard = document.getElementById('userDashboard');
+            const gameScreen = document.getElementById('gameScreen');
+            const rScreen = document.getElementById('gameScreenRoulette');
+            if (dashboard) dashboard.style.display = 'none';
+            if (gameScreen) gameScreen.style.display = 'none';
+            if (rScreen) rScreen.style.display = 'none';
+
+            let bjScreen = document.getElementById('gameScreenBlackjack');
+            if (!bjScreen) {
+                bjScreen = document.createElement('div');
+                bjScreen.id = 'gameScreenBlackjack';
+                bjScreen.style.cssText = "background: #05160a; padding: 15px; border-radius: 10px; color: white; text-align: center; font-family: sans-serif; margin: 20px auto; max-width: 950px; border: 2px solid #5a3814; box-shadow: 0 10px 30px rgba(0,0,0,0.8);";
+                bjScreen.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <button onclick="regresarAlDashboard()" style="background: #222; color: white; border: 1px solid #444; padding: 6px 12px; border-radius: 5px; cursor: pointer;">⬅ Menú Principal</button>
+                        <h3 style="margin: 0; color: #f1c40f; letter-spacing: 1px;">FIRST PERSON BLACKJACK (MÁX. 3 MANOS)</h3>
+                        <div style="font-size: 13px;">Balance: <span id="bjBalance" style="color: #2ecc71; font-weight: bold;">0.00</span> USDT</div>
+                    </div>
+
+                    <!-- MESA DE JUEGO 3D -->
+                    <div style="position: relative; background: radial-gradient(circle, #0b4d21 0%, #03220d 80%); border: 6px solid #5a3814; border-radius: 180px 180px 20px 20px; height: 420px; box-shadow: inset 0 20px 40px rgba(0,0,0,0.8); overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; padding: 20px;">
+                
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 20px;">
+                        <div style="background: rgba(0,0,0,0.5); border: 1px solid #444; padding: 4px 12px; border-radius: 6px; font-size: 11px; color: #f1c40f;">
+                            MÁX. 1000 USDT POR JUGADA
+                        </div>
+                        <div style="font-size: 20px;">🎴</div>
+                    </div>
+
+                    <!-- CARTAS CRUPIER -->
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #f1c40f; margin-bottom: 4px; font-weight: bold;">CRUPIER</div>
+                        <div id="cartasCrupierArea" style="display: flex; justify-content: center; gap: 6px; min-height: 65px;"></div>
+                    </div>
+
+                    <!-- 3 POSICIONES DE APUESTA -->
+                    <div style="text-align: center;">
+                        <div style="font-size: 12px; color: #2ecc71; margin-bottom: 4px; font-weight: bold;">SELECCIONA TUS 3 MANOS</div>
+                        <div style="display: flex; justify-content: center; gap: 30px;">
+                            <div class="spot-pos-bj" onclick="colocarApuestaBJ(0)" id="spot-bj-0"><span>Mano 1</span><div class="cartas-slot-bj" id="cartas-slot-bj-0"></div></div>
+                            <div class="spot-pos-bj" onclick="colocarApuestaBJ(1)" id="spot-bj-1"><span>Mano 2</span><div class="cartas-slot-bj" id="cartas-slot-bj-1"></div></div>
+                            <div class="spot-pos-bj" onclick="colocarApuestaBJ(2)" id="spot-bj-2"><span>Mano 3</span><div class="cartas-slot-bj" id="cartas-slot-bj-2"></div></div>
+                        </div>
+                    </div>
+
+                    <div id="bjMensajeEstado" style="font-size: 13px; color: #f1c40f; font-weight: bold;">
+                        Haz clic en las manos para apostar (Máx. 1000 USDT c/u).
+                    </div>
+                </div>
+
+                <!-- CONTROLES -->
+                <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center; background: #0b131a; padding: 10px 20px; border-radius: 8px; border: 1px solid #1e293b;">
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <button onclick="seleccionarFichaBJ(1)" id="bj-chip-1" class="bj-chip active-bj" style="border: 2px solid #f1c40f;">1</button>
+                        <button onclick="seleccionarFichaBJ(10)" id="bj-chip-10" class="bj-chip" style="border: 2px solid #fff;">10</button>
+                        <button onclick="seleccionarFichaBJ(50)" id="bj-chip-50" class="bj-chip" style="border: 2px solid #fff;">50</button>
+                        <button onclick="seleccionarFichaBJ(100)" id="bj-chip-100" class="bj-chip" style="border: 2px solid #fff;">100</button>
+                        <button onclick="seleccionarFichaBJ(500)" id="bj-chip-500" class="bj-chip" style="border: 2px solid #fff;">500</button>
+                        <button onclick="limpiarApuestasBJ()" style="background: #c0392b; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">Limpiar</button>
+                    </div>
+
+                    <div id="panelBotonesAccionBJ" style="display: flex; gap: 8px;">
+                        <button onclick="iniciarRondaBJ()" id="btnDealBJ" style="background: #f1c40f; color: #000; border: none; padding: 10px 30px; font-size: 15px; font-weight: bold; border-radius: 20px; cursor: pointer;">DEAL</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(bjScreen);
+
+            // Estilos CSS inyectados para el Blackjack sin tocar el resto de la web
+            let styleBJ = document.createElement('style');
+            styleBJ.innerHTML = `
+                .spot-pos-bj { position: relative; width: 70px; height: 70px; border: 2px dashed rgba(255,255,255,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; background: rgba(0,0,0,0.3); transition: all 0.2s; }
+                .spot-pos-bj:hover { border-color: #f1c40f; background: rgba(241,196,15,0.15); }
+                .spot-pos-bj span { color: rgba(255,255,255,0.8); font-size: 11px; font-weight: bold; }
+                .ficha-badge-bj { position: absolute; bottom: -5px; right: -5px; background: #f1c40f; color: #000; border-radius: 50%; width: 24px; height: 24px; font-size: 11px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 1px solid #fff; z-index: 5; }
+                .bj-chip { width: 36px; height: 36px; border-radius: 50%; background: #16a085; color: white; font-weight: bold; cursor: pointer; font-size: 11px; }
+                .carta-bj-item { background: #fff; color: #000; width: 38px; height: 55px; border-radius: 4px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 13px; box-shadow: 0 3px 6px rgba(0,0,0,0.4); border: 1px solid #ccc; }
+                .carta-bj-mini { width: 30px; height: 42px; font-size: 10px; }
+                .cartas-slot-bj { position: absolute; top: 75px; display: flex; gap: 3px; flex-wrap: wrap; width: 110px; left: -20px; justify-content: center; }
+            `;
+            document.head.appendChild(styleBJ);
+        }
+
+        bjScreen.style.display = 'block';
+        const bal = document.getElementById('bjBalance');
+        if (bal) bal.textContent = saldoActualGlobal.toFixed(2);
+    }
+
+    // Variables y lógica de control del Blackjack aislado
+    let fichaSeleccionadaBJ = 1;
+    let apuestasMesaBJ = [0, 0, 0];
+    let mazoCartasBJ = [];
+    let manoJugadorBJ = [[], [], []];
+    let manoCrupierBJ = [];
+    let juegoEnCursoBJ = false;
+    let posicionActivaBJ = -1;
+
+    function seleccionarFichaBJ(monto) {
+        fichaSeleccionadaBJ = monto;
+        [1, 10, 50, 100, 500].forEach(val => {
+            const btn = document.getElementById(`bj-chip-${val}`);
+            if (btn) {
+                btn.style.border = (val === monto) ? '2px solid #f1c40f' : '2px solid #fff';
+                btn.style.transform = (val === monto) ? 'scale(1.1)' : 'scale(1)';
+            }
+        });
+    }
+
+    function colocarApuestaBJ(index) {
+        if (juegoEnCursoBJ) return;
+        if (apuestasMesaBJ[index] + fichaSeleccionadaBJ > 1000) {
+            alert("El límite máximo por jugada es de 1000 USDT.");
+            return;
+        }
+        let totalApostadoActual = apuestasMesaBJ.reduce((a, b) => a + b, 0);
+        if (saldoActualGlobal < (totalApostadoActual + fichaSeleccionadaBJ)) {
+            alert("Saldo insuficiente.");
+            return;
+        }
+        apuestasMesaBJ[index] += fichaSeleccionadaBJ;
+
+        for (let i = 0; i < 3; i++) {
+            let spot = document.getElementById(`spot-bj-${i}`);
+            let badge = spot.querySelector('.ficha-badge-bj');
+            if (apuestasMesaBJ[i] > 0) {
+                if (!badge) {
+                    badge = document.createElement('div');
+                    badge.className = 'ficha-badge-bj';
+                    spot.appendChild(badge);
+                }
+                badge.textContent = apuestasMesaBJ[i];
+            } else if (badge) {
+                badge.remove();
+            }
+        }
+    }
+
+    function limpiarApuestasBJ() {
+        if (juegoEnCursoBJ) return;
+        apuestasMesaBJ = [0, 0, 0];
+        document.querySelectorAll('.ficha-badge-bj').forEach(b => b.remove());
+    }
+
+    function iniciarRondaBJ() {
+        let totalApuesta = apuestasMesaBJ.reduce((a, b) => a + b, 0);
+        if (totalApuesta === 0) {
+            alert("Coloca apuesta en al menos una de las 3 manos.");
+            return;
+        }
+        if (saldoActualGlobal < totalApuesta) {
+            alert("Saldo insuficiente.");
+            return;
+        }
+
+        saldoActualGlobal -= totalApuesta;
+        actualizarSaldosVisuales();
+        document.getElementById('bjBalance').textContent = saldoActualGlobal.toFixed(2);
+        juegoEnCursoBJ = true;
+
+        mazoCartasBJ = [];
+        let palos = ['♠', '♣', '♥', '♦'];
+        let valores = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        for (let p of palos) {
+            for (let v of valores) {
+                let peso = parseInt(v) ? parseInt(v) : (v === 'A' ? 11 : 10);
+                mazoCartasBJ.push({ valor: v, palo: p, peso: peso, color: (p === '♥' || p === '♦') ? 'red' : 'black' });
+            }
+        }
+        mazoCartasBJ.sort(() => Math.random() - 0.5);
+
+        manoCrupierBJ = [];
+        manoJugadorBJ = [[], [], []];
+
+        for (let i = 0; i < 3; i++) {
+            if (apuestasMesaBJ[i] > 0) {
+                manoJugadorBJ[i].push(mazoCartasBJ.pop());
+                manoJugadorBJ[i].push(mazoCartasBJ.pop());
+            }
+        }
+        manoCrupierBJ.push(mazoCartasBJ.pop());
+        manoCrupierBJ.push(mazoCartasBJ.pop());
+
+        renderizarMesaBJ();
+        posicionActivaBJ = apuestasMesaBJ.findIndex(ap => ap > 0);
+    
+        document.getElementById('panelBotonesAccionBJ').innerHTML = `
+            <button onclick="accionHitBJ()" style="background: #27ae60; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">HIT</button>
+            <button onclick="accionStandBJ()" style="background: #e67e22; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">STAND</button>
+        `;
+        document.getElementById('bjMensajeEstado').textContent = `Jugando Mano #${posicionActivaBJ + 1}`;
+    }
+
+    function calcularPuntajeMano(mano) {
+        let suma = 0, aces = 0;
+        for (let carta of mano) {
+            suma += carta.peso;
+            if (carta.valor === 'A') aces++;
+        }
+        while (suma > 21 && aces > 0) { suma -= 10; aces--; }
+        return suma;
+    }
+
+    function renderizarMesaBJ(mostrarOculta = false) {
+        let areaCrupier = document.getElementById('cartasCrupierArea');
+        areaCrupier.innerHTML = '';
+        manoCrupierBJ.forEach((carta, idx) => {
+            let cardDiv = document.createElement('div');
+            cardDiv.className = 'carta-bj-item';
+            if (idx === 1 && !mostrarOculta) {
+                cardDiv.style.background = '#1e293b';
+                cardDiv.innerHTML = '<span style="color:#f1c40f;">🎴</span>';
+            } else {
+                cardDiv.style.color = carta.color === 'red' ? '#e74c3c' : '#000';
+                cardDiv.innerHTML = `<strong>${carta.valor}</strong><span>${carta.palo}</span>`;
+            }
+            areaCrupier.appendChild(cardDiv);
+        });
+
+        for (let i = 0; i < 3; i++) {
+            let slot = document.getElementById(`cartas-slot-bj-${i}`);
+            slot.innerHTML = '';
+            if (apuestasMesaBJ[i] > 0) {
+                manoJugadorBJ[i].forEach(carta => {
+                    let cardDiv = document.createElement('div');
+                    cardDiv.className = 'carta-bj-item carta-bj-mini';
+                    cardDiv.style.color = carta.color === 'red' ? '#e74c3c' : '#000';
+                    cardDiv.innerHTML = `<strong>${carta.valor}</strong><span>${carta.palo}</span>`;
+                    slot.appendChild(cardDiv);
+                });
+                let pts = calcularPuntajeMano(manoJugadorBJ[i]);
+                let badge = document.createElement('div');
+                badge.style.cssText = "font-size: 10px; color: #f1c40f; margin-top: 2px;";
+                badge.textContent = `Pts: ${pts}`;
+                slot.appendChild(badge);
+            }
+        }
+    }
+
+    function accionHitBJ() {
+        manoJugadorBJ[posicionActivaBJ].push(mazoCartasBJ.pop());
+        renderizarMesaBJ();
+        if (calcularPuntajeMano(manoJugadorBJ[posicionActivaBJ]) > 21) {
+            siguienteTurnoBJ();
+        }
+    }
+
+    function accionStandBJ() {
+        siguienteTurnoBJ();
+    }
+
+    function siguienteTurnoBJ() {
+        let siguiente = -1;
+        for (let i = posicionActivaBJ + 1; i < 3; i++) {
+            if (apuestasMesaBJ[i] > 0) { siguiente = i; break; }
+        }
+        if (siguiente !== -1) {
+            posicionActivaBJ = siguiente;
+            document.getElementById('bjMensajeEstado').textContent = `Jugando Mano #${posicionActivaBJ + 1}`;
+        } else {
+            renderizarMesaBJ(true);
+            let ptsC = calcularPuntajeMano(manoCrupierBJ);
+            let intervalo = setInterval(() => {
+                if (ptsC < 17) {
+                    manoCrupierBJ.push(mazoCartasBJ.pop());
+                    renderizarMesaBJ(true);
+                    ptsC = calcularPuntajeMano(manoCrupierBJ);
+                } else {
+                    clearInterval(intervalo);
+                    evaluarBJ(ptsC);
+                }
+            }, 500);
+        }
+    }
+
+    function evaluarBJ(ptsC) {
+        let totalPremio = 0;
+        for (let i = 0; i < 3; i++) {
+            if (apuestasMesaBJ[i] > 0) {
+                let ptsJ = calcularPuntajeMano(manoJugadorBJ[i]);
+                let ap = apuestasMesaBJ[i];
+                if (ptsJ <= 21 && (ptsC > 21 || ptsJ > ptsC)) totalPremio += ap * 2;
+                else if (ptsJ <= 21 && ptsJ === ptsC) totalPremio += ap;
+            }
+        }
+        saldoActualGlobal += totalPremio;
+        actualizarSaldosVisuales();
+        document.getElementById('bjBalance').textContent = saldoActualGlobal.toFixed(2);
+        alert(`Ronda finalizada. Retorno total: ${totalPremio.toFixed(2)} USDT`);
+        juegoEnCursoBJ = false;
+        apuestasMesaBJ = [0, 0, 0];
+        limpiarApuestasBJ();
+        document.getElementById('panelBotonesAccionBJ').innerHTML = `<button onclick="iniciarRondaBJ()" style="background: #f1c40f; color: #000; border: none; padding: 10px 30px; font-size: 15px; font-weight: bold; border-radius: 20px; cursor: pointer;">DEAL</button>`;
+    }
     </script>
     <style>
         .r-cell { background: #111; border: 1px solid #444; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; font-weight: bold; position: relative; }
