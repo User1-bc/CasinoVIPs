@@ -993,7 +993,7 @@
             if (resNum) resNum.textContent = valorSliderDice;
             if (inputProb) inputProb.value = tipoLanzamiento === 'debajo' ? valorSliderDice : (99 - valorSliderDice);
             
-            recalcularValoresDice();
+            recalcularValoresSlider();
         }
 
         function cambiarProbabilidadDesdeInput(val) {
@@ -1150,10 +1150,10 @@
                         </div>
                     </div>
                     <div style="margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 15px;">
-                        <button onclick="cambiarFichaRuleta(1)" id="chip-1" class="chip-btn active-chip" style="border-color: #f1c40f;">1</button>
-                        <button onclick="cambiarFichaRuleta(5)" id="chip-5" class="chip-btn">5</button>
-                        <button onclick="cambiarFichaRuleta(10)" id="chip-10" class="chip-btn">10</button>
-                        <button onclick="cambiarFichaRuleta(50)" id="chip-50" class="chip-btn">50</button>
+                        <button onclick="cambiarFichaRuleta(1)" id="chip-1" class="chip-btn active-chip" style="border-color: #f1c40f; transform: scale(1.1);">1</button>
+                        <button onclick="cambiarFichaRuleta(5)" id="chip-5" class="chip-btn" style="border-color: #fff;">5</button>
+                        <button onclick="cambiarFichaRuleta(10)" id="chip-10" class="chip-btn" style="border-color: #fff;">10</button>
+                        <button onclick="cambiarFichaRuleta(50)" id="chip-50" class="chip-btn" style="border-color: #fff;">50</button>
                         <button onclick="girarRuleta()" style="background: #f1c40f; color: #000; border: none; padding: 12px 35px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 10px rgba(241,196,15,0.4);">START</button>
                         <button onclick="limpiarApuestaRuleta()" style="background: #c0392b; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Limpiar</button>
                     </div>
@@ -1169,7 +1169,7 @@
         function cambiarFichaRuleta(monto) {
             fichaSeleccionadaRuleta = monto;
             
-            // Actualizar diseño visual de los botones de fichas
+            // Todos los botones vuelven a blanco y sin escala, solo el seleccionado se pone amarillo y con zoom
             [1, 5, 10, 50].forEach(val => {
                 const btn = document.getElementById(`chip-${val}`);
                 if (btn) {
@@ -1177,13 +1177,12 @@
                         btn.style.borderColor = '#f1c40f';
                         btn.style.transform = 'scale(1.1)';
                     } else {
-                        btn.style.borderColor = '#fff';
+                        btn.style.borderColor = '#ffffff';
                         btn.style.transform = 'scale(1)';
                     }
                 }
             });
 
-            // Si ya hay una apuesta seleccionada, actualizar el monto en pantalla con la nueva ficha
             if (apuestaActualRuleta.tipo !== null) {
                 const betSpan = document.getElementById('rouletteBet');
                 if (betSpan) betSpan.textContent = fichaSeleccionadaRuleta;
@@ -1271,7 +1270,7 @@
         .r-cell.black { background: #212121; }
         .r-cell.blue { background: #0d47a1; }
         .r-ext { background: #1b5e20; border: 1px solid #2e7d32; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; color: white; }
-        .chip-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; background: #27ae60; color: white; font-weight: bold; cursor: pointer; transition: transform 0.1s ease; }
+        .chip-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ffffff; background: #27ae60; color: white; font-weight: bold; cursor: pointer; transition: transform 0.15s ease, border-color 0.15s ease; }
     </style>
 </body>
 </html>
