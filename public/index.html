@@ -1092,6 +1092,117 @@
                 if (btn) btn.disabled = false;
             }, 800);
         }
+        // --- MÓDULO DE RULETA (AISPADO Y SEGURO) ---
+        let fichaSeleccionadaRuleta = 5;
+        let apuestaActualRuleta = { tipo: null, valor: null };
+
+        function abrirJuegoRuleta() {
+            const dashboard = document.getElementById('userDashboard');
+            const rScreen = document.getElementById('gameScreenRoulette');
+            if (dashboard) dashboard.style.display = 'none';
+            if (rScreen) rScreen.style.display = 'block';
+            actualizarSaldosRuletaVisual();
+        }
+
+        function cambiarFichaRuleta(monto) {
+            fichaSeleccionadaRuleta = monto;
+        }
+
+        function apostarRuleta(tipo, valor) {
+            let usuarios = obtenerUsuariosBD();
+            let saldoActual = usuarios[usuarioActualNombre] ? usuarios[usuarioActualNombre].balance : 0.00;
+
+            if (saldoActual < fichaSeleccionadaRuleta) {
+                alert("No tienes suficiente saldo para esta apuesta.");
+                return;
+            }
+
+            apuestaActualRuleta = { tipo: tipo, valor: valor };
+            const betSpan = document.getElementById('rouletteBet');
+            if (betSpan) betSpan.textContent = fichaSeleccionadaRuleta;
+        }
+
+        function limpiarApuestaRuleta() {
+            apuestaActualRuleta = { tipo: null, valor: null };
+            const betSpan = document.getElementById('rouletteBet');
+            if (betSpan) betSpan.textContent = "0";
+        }
+
+        function actualizarSaldosRuletaVisual() {
+            let usuarios = obtenerUsuariosBD();
+            let saldo = usuarios[usuarioActualNombre] ? usuarios[usuarioActualNombre].balance : 0.00;
+            const rBal = document.getElementById('rouletteBalance');
+            if (rBal) rBal.textContent = saldo.toFixed(2);
+        }
+
+        function girarRuleta() {
+            if (apuestaActualRuleta.tipo === null) {
+            alert("Por favor selecciona una casilla o tipo de apuesta en el tablero antes de dar START.");
+            return;
+        }
+
+        let usuarios = obtenerUsuariosBD();
+        if (!usuarios[usuarioActualNombre]) return;
+
+        let saldoActual = usuarios[usuarioActualNombre].balance;
+        let montoApostado = fichaSeleccionadaRuleta;
+
+        if (saldoActual < montoApostado) {
+            alert("Saldo insuficiente.");
+            return;
+        }
+
+        // Descontar apuesta
+        saldoActual -= montoApostado;
+        usuarios[usuarioActualNombre].balance = saldoActual;
+
+        // Simular resultado (0 al 36)
+        let numeroGanador = Math.floor(Math.random() * 37);
+        let gano = false;
+        let multiplicador = 0;
+
+        if (apuestaActualRuleta.tipo === 'num' && apuestaActualRuleta.valor === numeroGanador) {
+            gano = true;
+            multiplicador = 35;
+        } else if (apuestaActualRuleta.tipo === 'color') {
+            let esRoja = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(numeroGanador);
+            let colorGanador = numeroGanador === 0 ? 'verde' : (esRoja ? 'RED' : 'BLACK');
+            if (apuestaActualRuleta.valor === colorGanador) {
+                gano = true;
+                multiplicador = 2;
+            }
+         } else if (apuestaActualRuleta.tipo === 'dozens') {
+             let docenaGanadora = numeroGanador === 0 ? 0 : Math.ceil(numeroGanador / 12);
+            if (apuestaActualRuleta.valor === docenaGanadora) {
+                gano = true;
+                multiplicador = 3;
+            }
+        } else if (apuestaActualRuleta.tipo === 'paridad') {
+            if (apuestaActualRuleta.valor === 'EVEN' && numeroGanador > 0 && numeroGanador % 2 === 0) { gano = true; multiplicador = 2; }
+            if (apuestaActualRuleta.valor === 'ODD' && numeroGanador % 2 !== 0) { gano = true; multiplicador = 2; }
+            if (apuestaActualRuleta.valor === '1-18' && numeroGanador >= 1 && numeroGanador <= 18) { gano = true; multiplicador = 2; }
+            if (apuestaActualRuleta.valor === '19-36' && numeroGanador >= 19 && numeroGanador <= 36) { gano = true; multiplicador = 2; }
+        }
+
+        let premio = 0;
+        if (gano) {
+            premio = montoApostado * multiplicador;
+            saldoActual += premio;
+        }
+
+        // Guardar en localStorage de forma segura
+        usuarios[usuarioActualNombre].balance = saldoActual;
+        localStorage.setItem('juegos_vips_usuarios', JSON.stringify(usuarios));
+
+        // Refrescar pantallas de forma sincronizada
+        actualizarSaldosRuletaVisual();
+        if (typeof actualizarSaldosVisuales === 'function') {
+            actualizarSaldosVisuales();
+        }
+
+        alert(`¡El número ganador fue el ${numeroGanador}! ` + (gano ? `¡Ganaste ${premio.toFixed(2)} USDT!` : "Perdiste esta ronda."));
+        limpiarApuestaRuleta();
+    }
     </script>
 </body>
 </html>
