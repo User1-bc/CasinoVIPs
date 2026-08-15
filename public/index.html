@@ -659,34 +659,32 @@
         setInterval(function() {        
             let variacion = Math.floor(Math.random() * 28) - 12;                
             jugadoresActuales += variacion;                         
-            if (jugadoresActuales < 3200) { jugadoresActuales = 3215; }                                       
+            if (jugadoresActuales < 3200) { jugadoresActuales = 3215; }                         
             if (spanContador) spanContador.textContent = jugadoresActuales.toLocaleString();
         }, 120000);
 
         let saldoActualGlobal = 0.00; 
-        let bonoActualGlobal = 5.00; // Asignación inicial de 5 USDT de bono por registro
+        let bonoActualGlobal = 5.00; 
         let juegoActualActivo = "";
         let usuarioActualNombre = "";
 
-        // Base de datos simulada en memoria del navegador (localStorage) para almacenar usuarios registrados
         function obtenerUsuariosBD() {
             let usuarios = localStorage.getItem('juegos_vips_usuarios');
-            return usuarios ? JSON.parse(users = usuarios) : {};
+            return usuarios ? JSON.parse(usuarios) : {};
         }
 
         function guardarUsuarioBD(username, password) {
             let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
-            usuarios[username] = password;
+            usuarios[username] = { password: password, balance: 5.00 }; // Inicializa con saldo de bono
             localStorage.setItem('juegos_vips_usuarios', JSON.stringify(usuarios));
         }
 
         function verificarCredencialesBD(username, password) {
-            let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
-            return usuarios[username] && usuarios[username] === password;
+            let usuarios = obtenerUsuariosBD();
+            return usuarios[username] && (usuarios[username].password === password || usuarios[username] === password);
         }
 
-        // Variables específicas para el juego de dados estilo Qzino
-        let tipoLanzamiento = "debajo"; // "debajo" o "encima"
+        let tipoLanzamiento = "debajo"; 
         let valorSliderDice = 50;
         let multiplicadorDice = 1.98;
         let probabilidadDice = 50;
@@ -725,7 +723,7 @@
                     const userVal = document.getElementById('regUser').value.trim();
                     const passVal = document.getElementById('regPass').value.trim();
                     
-                    let usuarios = JSON.parse(localStorage.getItem('juegos_vips_usuarios') || '{}');
+                    let usuarios = obtenerUsuariosBD();
                     if (usuarios[userVal]) {
                         alert("El nombre de usuario ya existe. Por favor, elige otro o inicia sesión.");
                         return;
@@ -741,8 +739,18 @@
 
         function procesarLoginExitoso(nombreUsuario) {
             usuarioActualNombre = nombreUsuario || "Jugador";
-            saldoActualGlobal = 0.00;
-            bonoActualGlobal = 5.00; // Garantiza los 5 USDT de bono al iniciar sesión correctamente
+            let usuarios = obtenerUsuariosBD();
+            
+            if (usuarios[nombreUsuario]) {
+                if (typeof usuarios[nombreUsuario] === 'string') {
+                    usuarios[nombreUsuario] = { password: usuarios[nombreUsuario], balance: 5.00 };
+                }
+                saldoActualGlobal = usuarios[nombreUsuario].balance || 0.00;
+            } else {
+                saldoActualGlobal = 0.00;
+            }
+
+            bonoActualGlobal = 5.00; 
             cerrarModales();
 
             const publicSite = document.getElementById('publicSite');
@@ -767,23 +775,35 @@
             if (bonoUsuario) bonoUsuario.textContent = bonoActualGlobal.toFixed(2);
             if (saldoJuego) saldoJuego.textContent = saldoActualGlobal.toFixed(2);
             if (bonoJuego) bonoJuego.textContent = bonoActualGlobal.toFixed(2);
+
+            let usuarios = obtenerUsuariosBD();
+            if (usuarios[usuarioActualNombre]) {
+                if (typeof usuarios[usuarioActualNombre] === 'object') {
+                    usuarios[usuarioActualNombre].balance = saldoActualGlobal;
+                    localStorage.setItem('juegos_vips_usuarios', JSON.stringify(usuarios));
+                }
+            }
         }
 
         function cerrarSesion() {
             const publicSite = document.getElementById('publicSite');
             const userDashboard = document.getElementById('userDashboard');
             const gameScreen = document.getElementById('gameScreen');
+            const rScreen = document.getElementById('gameScreenRoulette');
 
             if (publicSite) publicSite.style.display = 'block';
             if (userDashboard) userDashboard.style.display = 'none';
             if (gameScreen) gameScreen.style.display = 'none';
+            if (rScreen) rScreen.style.display = 'none';
         }
 
         function regresarAlDashboard() {
             const gameScreen = document.getElementById('gameScreen');
+            const rScreen = document.getElementById('gameScreenRoulette');
             const userDashboard = document.getElementById('userDashboard');
 
             if (gameScreen) gameScreen.style.display = 'none';
+            if (rScreen) rScreen.style.display = 'none';
             if (userDashboard) userDashboard.style.display = 'block';
             actualizarSaldosVisuales();
         }
@@ -823,10 +843,18 @@
         }
 
         function cargarJuego(nombreJuego) {
+            if (nombreJuego.includes('Ruleta') || nombreJuego.toLowerCase().includes('roulette')) {
+                abrirJuegoRuleta();
+                return;
+            }
+
             juegoActualActivo = nombreJuego;
             const dashboard = document.getElementById('userDashboard');
             const gameScreen = document.getElementById('gameScreen');
+            const rScreen = document.getElementById('gameScreenRoulette');
+            
             if (dashboard) dashboard.style.display = 'none';
+            if (rScreen) rScreen.style.display = 'none';
             if (gameScreen) gameScreen.style.display = 'block';
             
             const tituloPantalla = document.getElementById('tituloJuegoPantalla');
@@ -840,7 +868,6 @@
             if (nombreJuego.includes('Dados')) {
                 visual.innerHTML = `
                     <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; align-items: flex-start; text-align: left;">
-                        <!-- Panel de controles izquierdo -->
                         <div style="background: #07090f; border: 1px solid #1e293b; border-radius: 12px; padding: 20px; width: 320px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                                 <label style="color: #9ca3af; font-size: 0.9rem;">Importe</label>
@@ -860,7 +887,6 @@
                                 <button onclick="setImporteFijo(100)" style="flex:1; background:#131b2e; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; cursor:pointer;">100</button>
                                 <button onclick="setImporteFijo(1000)" style="flex:1; background:#131b2e; border:1px solid #1e293b; color:#fff; padding:6px; border-radius:4px; cursor:pointer;">1K</button>
                             </div>
-
                             <div style="display: flex; gap: 10px; margin-bottom: 15px;">
                                 <div style="flex:1;">
                                     <label style="color: #9ca3af; font-size: 0.8rem; display: block; margin-bottom: 4px;">Multiplicador, x</label>
@@ -871,20 +897,16 @@
                                     <input type="number" id="inputProbabilidadDice" value="50" min="1" max="98" style="width: 100%; background: #131b2e; border: 1px solid #1e293b; color: #fff; padding: 10px; border-radius: 6px; text-align: center;" oninput="cambiarProbabilidadDesdeInput(this.value)">
                                 </div>
                             </div>
-
                             <button onclick="ejecutarJugadaReal()" id="btnEjecutarJuego" style="width: 100%; background: #22c55e; color: #0b0f19; border: none; padding: 14px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; text-transform: uppercase;">Apostar</button>
                             <div style="text-align: center; margin-top: 10px; color: #9ca3af; font-size: 0.85rem;">
                                 Ganancia por victoria <span id="labelGananciaPotencial" style="color: #22c55e; font-weight: bold;">1.98 US$</span>
                             </div>
                         </div>
-
-                        <!-- Pantalla interactiva derecha de dados estilo Qzino -->
                         <div style="flex: 1; background: #07090f; border: 1px solid #1e293b; border-radius: 12px; padding: 30px; display: flex; flex-direction: column; justify-content: center; align-items: center; min-width: 320px;">
                             <div style="display: flex; background: #131b2e; border-radius: 8px; padding: 4px; margin-bottom: 30px; gap: 4px;">
                                 <button id="btnDebajo" onclick="cambiarModoTirada('debajo')" style="background: #22c55e; border: none; color: #0b0f19; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Lanzar por debajo de</button>
                                 <button id="btnEncima" onclick="cambiarModoTirada('encima')" style="background: transparent; border: none; color: #9ca3af; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.85rem;">Lanzar por encima de</button>
                             </div>
-
                             <div style="display: flex; align-items: center; justify-content: center; gap: 40px; width: 100%; margin-bottom: 30px;">
                                 <div style="text-align: center;">
                                     <div id="resultadoNumeroDice" style="font-size: 3.5rem; font-weight: bold; color: #fff;">50</div>
@@ -896,17 +918,8 @@
                                     <div style="color: #9ca3af; font-size: 0.85rem;">Número de la suerte</div>
                                 </div>
                             </div>
-
-                            <!-- Barra deslizadora (Slider) -->
                             <div style="width: 100%; max-width: 450px; position: relative; margin: 20px 0 10px 0;">
                                 <input type="range" id="sliderDice" min="2" max="98" value="50" style="width: 100%; accent-color: #22c55e; cursor: pointer;" oninput="actualizarValoresSlider(this.value)">
-                                <div style="display: flex; justify-content: space-between; color: #6b7280; font-size: 0.75rem; margin-top: 5px;">
-                                    <span>0</span>
-                                    <span>25</span>
-                                    <span>50</span>
-                                    <span>75</span>
-                                    <span>99</span>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -1068,7 +1081,6 @@
                     ganado = Math.random() >= 0.5;
                 }
 
-                // Descontar primero del bono y luego del saldo real si es necesario
                 let restanteAPagar = montoApuesta;
                 if (bonoActualGlobal >= restanteAPagar) {
                     bonoActualGlobal -= restanteAPagar;
@@ -1092,15 +1104,65 @@
                 if (btn) btn.disabled = false;
             }, 800);
         }
-        // --- MÓDULO DE RULETA (AISPADO Y SEGURO) ---
+
+        // --- MÓDULO DE RULETA (CON TABLERO VISUAL INCLUIDO) ---
         let fichaSeleccionadaRuleta = 5;
         let apuestaActualRuleta = { tipo: null, valor: null };
 
         function abrirJuegoRuleta() {
             const dashboard = document.getElementById('userDashboard');
-            const rScreen = document.getElementById('gameScreenRoulette');
+            const gameScreen = document.getElementById('gameScreen');
             if (dashboard) dashboard.style.display = 'none';
-            if (rScreen) rScreen.style.display = 'block';
+            if (gameScreen) gameScreen.style.display = 'none';
+
+            let rScreen = document.getElementById('gameScreenRoulette');
+            if (!rScreen) {
+                rScreen = document.createElement('div');
+                rScreen.id = 'gameScreenRoulette';
+                rScreen.style.cssText = "background: #0b2e13; padding: 20px; border-radius: 10px; color: white; text-align: center; font-family: sans-serif; margin: 20px auto; max-width: 900px;";
+                rScreen.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                        <button onclick="regresarAlDashboard()" style="background: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">⬅ Menú</button>
+                        <h2 style="margin: 0; color: #f1c40f;">LUCKY ROULETTE</h2>
+                        <div style="font-size: 14px;">Balance: <span id="rouletteBalance">0.00</span> USDT | Apuesta: <span id="rouletteBet">0</span></div>
+                    </div>
+                    <div class="roulette-board" style="display: inline-block; background: #084c1e; padding: 15px; border: 4px solid #d4af37; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.5);">
+                        <div style="display: grid; grid-template-columns: 60px repeat(12, 45px); gap: 3px; margin-bottom: 5px;">
+                            <div onclick="apostarRuleta('num', 0)" style="grid-row: span 3; background: #27ae60; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 4px; cursor: pointer; border: 1px solid #444;">0</div>
+                            <div class="r-cell red" onclick="apostarRuleta('num', 3)">3</div><div class="r-cell black" onclick="apostarRuleta('num', 6)">6</div><div class="r-cell red" onclick="apostarRuleta('num', 9)">9</div><div class="r-cell blue" onclick="apostarRuleta('num', 12)">12</div><div class="r-cell red" onclick="apostarRuleta('num', 15)">15</div><div class="r-cell black" onclick="apostarRuleta('num', 18)">18</div><div class="r-cell red" onclick="apostarRuleta('num', 21)">21</div><div class="r-cell black" onclick="apostarRuleta('num', 24)">24</div><div class="r-cell red" onclick="apostarRuleta('num', 27)">27</div><div class="r-cell blue" onclick="apostarRuleta('num', 30)">30</div><div class="r-cell red" onclick="apostarRuleta('num', 33)">33</div><div class="r-cell black" onclick="apostarRuleta('num', 36)">36</div>
+                            <div class="r-cell black" onclick="apostarRuleta('num', 2)">2</div><div class="r-cell red" onclick="apostarRuleta('num', 5)">5</div><div class="r-cell black" onclick="apostarRuleta('num', 8)">8</div><div class="r-cell black" onclick="apostarRuleta('num', 11)">11</div><div class="r-cell red" onclick="apostarRuleta('num', 14)">14</div><div class="r-cell black" onclick="apostarRuleta('num', 17)">17</div><div class="r-cell black" onclick="apostarRuleta('num', 20)">20</div><div class="r-cell red" onclick="apostarRuleta('num', 23)">23</div><div class="r-cell black" onclick="apostarRuleta('num', 26)">26</div><div class="r-cell black" onclick="apostarRuleta('num', 29)">29</div><div class="r-cell red" onclick="apostarRuleta('num', 32)">32</div><div class="r-cell red" onclick="apostarRuleta('num', 35)">35</div>
+                            <div class="r-cell red" onclick="apostarRuleta('num', 1)">1</div><div class="r-cell black" onclick="apostarRuleta('num', 4)">4</div><div class="r-cell red" onclick="apostarRuleta('num', 7)">7</div><div class="r-cell red" onclick="apostarRuleta('num', 10)">10</div><div class="r-cell black" onclick="apostarRuleta('num', 13)">13</div><div class="r-cell red" onclick="apostarRuleta('num', 16)">16</div><div class="r-cell red" onclick="apostarRuleta('num', 19)">19</div><div class="r-cell black" onclick="apostarRuleta('num', 22)">22</div><div class="r-cell red" onclick="apostarRuleta('num', 25)">25</div><div class="r-cell red" onclick="apostarRuleta('num', 28)">28</div><div class="r-cell black" onclick="apostarRuleta('num', 31)">31</div><div class="r-cell black" onclick="apostarRuleta('num', 34)">34</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 60px repeat(3, 180px); gap: 3px; margin-top: 5px; font-size: 13px; font-weight: bold;">
+                            <div></div>
+                            <div onclick="apostarRuleta('dozens', 1)" class="r-ext">1st 12</div>
+                            <div onclick="apostarRuleta('dozens', 2)" class="r-ext">2nd 12</div>
+                            <div onclick="apostarRuleta('dozens', 3)" class="r-ext">3rd 12</div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 60px repeat(6, 90px); gap: 3px; margin-top: 5px; font-size: 12px; font-weight: bold;">
+                            <div></div>
+                            <div onclick="apostarRuleta('paridad', '1-18')" class="r-ext">1~18</div>
+                            <div onclick="apostarRuleta('paridad', 'EVEN')" class="r-ext">EVEN</div>
+                            <div onclick="apostarRuleta('color', 'RED')" class="r-ext" style="background: #b71c1c;">RED</div>
+                            <div onclick="apostarRuleta('color', 'BLACK')" class="r-ext" style="background: #212121;">BLACK</div>
+                            <div onclick="apostarRuleta('paridad', 'ODD')" class="r-ext">ODD</div>
+                            <div onclick="apostarRuleta('paridad', '19-36')" class="r-ext">19~36</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 20px; display: flex; justify-content: center; align-items: center; gap: 15px;">
+                        <button onclick="cambiarFichaRuleta(1)" class="chip-btn">1</button>
+                        <button onclick="cambiarFichaRuleta(5)" class="chip-btn" style="border-color: #f1c40f;">5</button>
+                        <button onclick="cambiarFichaRuleta(10)" class="chip-btn">10</button>
+                        <button onclick="cambiarFichaRuleta(50)" class="chip-btn">50</button>
+                        <button onclick="girarRuleta()" style="background: #f1c40f; color: #000; border: none; padding: 12px 35px; font-size: 18px; font-weight: bold; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 10px rgba(241,196,15,0.4);">START</button>
+                        <button onclick="limpiarApuestaRuleta()" style="background: #c0392b; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer;">Limpiar</button>
+                    </div>
+                </div>
+            `;
+                document.body.appendChild(rScreen);
+            }
+
+            rScreen.style.display = 'block';
             actualizarSaldosRuletaVisual();
         }
 
@@ -1109,14 +1171,10 @@
         }
 
         function apostarRuleta(tipo, valor) {
-            let usuarios = obtenerUsuariosBD();
-            let saldoActual = usuarios[usuarioActualNombre] ? usuarios[usuarioActualNombre].balance : 0.00;
-
-            if (saldoActual < fichaSeleccionadaRuleta) {
+            if (saldoActualGlobal < fichaSeleccionadaRuleta) {
                 alert("No tienes suficiente saldo para esta apuesta.");
                 return;
             }
-
             apuestaActualRuleta = { tipo: tipo, valor: valor };
             const betSpan = document.getElementById('rouletteBet');
             if (betSpan) betSpan.textContent = fichaSeleccionadaRuleta;
@@ -1129,80 +1187,71 @@
         }
 
         function actualizarSaldosRuletaVisual() {
-            let usuarios = obtenerUsuariosBD();
-            let saldo = usuarios[usuarioActualNombre] ? usuarios[usuarioActualNombre].balance : 0.00;
             const rBal = document.getElementById('rouletteBalance');
-            if (rBal) rBal.textContent = saldo.toFixed(2);
+            if (rBal) rBal.textContent = saldoActualGlobal.toFixed(2);
         }
 
         function girarRuleta() {
             if (apuestaActualRuleta.tipo === null) {
-            alert("Por favor selecciona una casilla o tipo de apuesta en el tablero antes de dar START.");
-            return;
-        }
-
-        let usuarios = obtenerUsuariosBD();
-        if (!usuarios[usuarioActualNombre]) return;
-
-        let saldoActual = usuarios[usuarioActualNombre].balance;
-        let montoApostado = fichaSeleccionadaRuleta;
-
-        if (saldoActual < montoApostado) {
-            alert("Saldo insuficiente.");
-            return;
-        }
-
-        // Descontar apuesta
-        saldoActual -= montoApostado;
-        usuarios[usuarioActualNombre].balance = saldoActual;
-
-        // Simular resultado (0 al 36)
-        let numeroGanador = Math.floor(Math.random() * 37);
-        let gano = false;
-        let multiplicador = 0;
-
-        if (apuestaActualRuleta.tipo === 'num' && apuestaActualRuleta.valor === numeroGanador) {
-            gano = true;
-            multiplicador = 35;
-        } else if (apuestaActualRuleta.tipo === 'color') {
-            let esRoja = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(numeroGanador);
-            let colorGanador = numeroGanador === 0 ? 'verde' : (esRoja ? 'RED' : 'BLACK');
-            if (apuestaActualRuleta.valor === colorGanador) {
-                gano = true;
-                multiplicador = 2;
+                alert("Por favor selecciona una casilla o tipo de apuesta en el tablero antes de dar START.");
+                return;
             }
-         } else if (apuestaActualRuleta.tipo === 'dozens') {
-             let docenaGanadora = numeroGanador === 0 ? 0 : Math.ceil(numeroGanador / 12);
-            if (apuestaActualRuleta.valor === docenaGanadora) {
-                gano = true;
-                multiplicador = 3;
+
+            let montoApostado = fichaSeleccionadaRuleta;
+            if (saldoActualGlobal < montoApostado) {
+                alert("Saldo insuficiente.");
+                return;
             }
-        } else if (apuestaActualRuleta.tipo === 'paridad') {
-            if (apuestaActualRuleta.valor === 'EVEN' && numeroGanador > 0 && numeroGanador % 2 === 0) { gano = true; multiplicador = 2; }
-            if (apuestaActualRuleta.valor === 'ODD' && numeroGanador % 2 !== 0) { gano = true; multiplicador = 2; }
-            if (apuestaActualRuleta.valor === '1-18' && numeroGanador >= 1 && numeroGanador <= 18) { gano = true; multiplicador = 2; }
-            if (apuestaActualRuleta.valor === '19-36' && numeroGanador >= 19 && numeroGanador <= 36) { gano = true; multiplicador = 2; }
-        }
 
-        let premio = 0;
-        if (gano) {
-            premio = montoApostado * multiplicador;
-            saldoActual += premio;
-        }
+            saldoActualGlobal -= montoApostado;
 
-        // Guardar en localStorage de forma segura
-        usuarios[usuarioActualNombre].balance = saldoActual;
-        localStorage.setItem('juegos_vips_usuarios', JSON.stringify(usuarios));
+            let numeroGanador = Math.floor(Math.random() * 37);
+            let gano = false;
+            let multiplicador = 0;
 
-        // Refrescar pantallas de forma sincronizada
-        actualizarSaldosRuletaVisual();
-        if (typeof actualizarSaldosVisuales === 'function') {
+            if (apuestaActualRuleta.tipo === 'num' && apuestaActualRuleta.valor === numeroGanador) {
+                gano = true;
+                multiplicador = 35;
+            } else if (apuestaActualRuleta.tipo === 'color') {
+                let esRoja = [1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(numeroGanador);
+                let colorGanador = numeroGanador === 0 ? 'verde' : (esRoja ? 'RED' : 'BLACK');
+                if (apuestaActualRuleta.valor === colorGanador) {
+                    gano = true;
+                    multiplicador = 2;
+                }
+            } else if (apuestaActualRuleta.tipo === 'dozens') {
+                let docenaGanadora = numeroGanador === 0 ? 0 : Math.ceil(numeroGanador / 12);
+                if (apuestaActualRuleta.valor === docenaGanadora) {
+                    gano = true;
+                    multiplicador = 3;
+                }
+            } else if (apuestaActualRuleta.tipo === 'paridad') {
+                if (apuestaActualRuleta.valor === 'EVEN' && numeroGanador > 0 && numeroGanador % 2 === 0) { gano = true; multiplicador = 2; }
+                if (apuestaActualRuleta.valor === 'ODD' && numeroGanador % 2 !== 0) { gano = true; multiplicador = 2; }
+                if (apuestaActualRuleta.valor === '1-18' && numeroGanador >= 1 && numeroGanador <= 18) { gano = true; multiplicador = 2; }
+                if (apuestaActualRuleta.valor === '19-36' && numeroGanador >= 19 && numeroGanador <= 36) { gano = true; multiplicador = 2; }
+            }
+
+            let premio = 0;
+            if (gano) {
+                premio = montoApostado * multiplicador;
+                saldoActualGlobal += premio;
+            }
+
+            actualizarSaldosRuletaVisual();
             actualizarSaldosVisuales();
-        }
 
-        alert(`¡El número ganador fue el ${numeroGanador}! ` + (gano ? `¡Ganaste ${premio.toFixed(2)} USDT!` : "Perdiste esta ronda."));
-        limpiarApuestaRuleta();
-    }
+            alert(`¡El número ganador fue el ${numeroGanador}! ` + (gano ? `¡Ganaste ${premio.toFixed(2)} USDT!` : "Perdiste esta ronda."));
+            limpiarApuestaRuleta();
+        }
     </script>
+    <style>
+        .r-cell { background: #111; border: 1px solid #444; height: 35px; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .r-cell.red { background: #b71c1c; }
+        .r-cell.black { background: #212121; }
+        .r-cell.blue { background: #0d47a1; }
+        .r-ext { background: #1b5e20; border: 1px solid #2e7d32; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; color: white; }
+        .chip-btn { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #fff; background: #27ae60; color: white; font-weight: bold; cursor: pointer; }
+    </style>
 </body>
 </html>
